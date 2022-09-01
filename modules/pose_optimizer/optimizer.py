@@ -1,11 +1,12 @@
 import numpy as np
 import cv2 as cv
 
+
 class Optimizer:
 
     def __init__(self):
 
-        self.feature_points_position = None
+        self.feature_points_position = np.array([])
         self.keyframes = []
         self.last_id = 0
 
@@ -19,13 +20,13 @@ class Optimizer:
 
 
     def add_keyframe(self, keyframe):
-        self.keyframe += [keyframe]
+        self.keyframes += [keyframe]
 
 
     def add_feature_point(self, init_position):
 
-        if self.feature_points_position:
-            self.feature_points_position = np.append(self.feature_points_position, [[init_position]], axis=0)
+        if self.feature_points_position.any():
+            self.feature_points_position = np.append(self.feature_points_position, [init_position], axis=0)
         else:
             self.feature_points_position = np.array([init_position])
 
@@ -50,9 +51,9 @@ class Optimizer:
             for keyframe in self.keyframes:
                 feature_points_force += self.calculate(keyframe)
 
-            self.feature_points_force += feature_points_force
+            self.feature_points_position += feature_points_force
 
-            evaluate_value = np.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
+            evaluate_value = np.linalg.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
             is_enough = evaluate_value < self.threshold
             print('trial times: {}'.format(trial))
             print('evaluate_value: {}'.format(evaluate_value))
@@ -79,15 +80,16 @@ class Optimizer:
 
             force = np.cross(vector_to_feature_point, moment) * vector_size
 
+
             keyframe_force -= force * self.position_constant
             keyframe_moment -= moment * self.rotation_constant
             feature_points_force[feature_point_id] += force * self.position_constant
 
-        if keyframe.position_bundle:
-            delta_keyframe_position -= ( keyframe.position - keyframe.position_bundle ) * slef.position_bundle_constant
+        if keyframe.position_bundle.any():
+            keyframe_force -= ( keyframe.position - keyframe.position_bundle ) * self.position_bundle_constant
 
-        if keyframe.rotation_bundle:
-            keyframe_moment -= cv.Rodrigues( keyframe.rotation @ np.linalg.inv(keyframe.rotation_bundle) )[0] * self.rotation_bundle_constant
+        if keyframe.rotation_bundle.any():
+            keyframe_moment -= cv.Rodrigues( keyframe.rotation @ np.linalg.inv(keyframe.rotation_bundle) )[0][0] * self.rotation_bundle_constant
 
         keyframe.position += keyframe_force
         keyframe.rotation = cv.Rodrigues(keyframe_moment)[0] @ keyframe.rotation
@@ -97,15 +99,15 @@ class Optimizer:
 
 class Keyframe:
 
-    def __init__(self, init_position, init_rotation, position_bundle, rotation_bundle, feature_point_bundle):
+    def __init__(self, init_position, init_rotation, position_bundle, rotation_bundle, feature_points_bundle):
 
         self.position = init_position
         self.rotation = init_rotation
 
-        # set None if no bundle
+        # set np.array([]) (empty array) if no bundle
         self.position_bundle = position_bundle
         self.rotation_bundle = rotation_bundle
 
         # [id of feature_point, np.array([unit_vector to feature_point in the keyframe coordinate])]
-        self.feature_points_bundle = feature_point_bundle
+        self.feature_points_bundle = feature_points_bundle
 
