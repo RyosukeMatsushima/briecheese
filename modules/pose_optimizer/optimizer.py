@@ -15,7 +15,9 @@ class Optimizer:
         self.position_constant = 0.01
         self.rotation_constant = 0.01
 
-        self.threshold = 0.1
+        self.feature_points_force_threshold = 0.01
+        self.keyframe_force_threshold = 0.01
+        self.keyframe_moment_threshold = 0.01
         self.max_trial = 1000
 
 
@@ -48,13 +50,18 @@ class Optimizer:
                 break
             trial += 1
 
+            is_keyframes_enough = True
             for keyframe in self.keyframes:
-                feature_points_force += self.calculate(keyframe)
+                output1, output2 = self.calculate(keyframe)
+                feature_points_force += output1
+                is_keyframes_enough = is_keyframes_enough and output2
+
 
             self.feature_points_position += feature_points_force
 
             evaluate_value = np.linalg.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
-            is_enough = evaluate_value < self.threshold
+            is_enough = evaluate_value < self.feature_points_force_threshold
+            is_enough = is_keyframes_enough
             print('trial times: {}'.format(trial))
             print('evaluate_value: {}'.format(evaluate_value))
 
@@ -85,6 +92,7 @@ class Optimizer:
             keyframe_moment -= moment * self.rotation_constant
             feature_points_force[feature_point_id] += force * self.position_constant
 
+
         if keyframe.position_bundle.any():
             keyframe_force -= ( keyframe.position - keyframe.position_bundle ) * self.position_bundle_constant
 
@@ -94,7 +102,9 @@ class Optimizer:
         keyframe.position += keyframe_force
         keyframe.rotation = cv.Rodrigues(keyframe_moment)[0] @ keyframe.rotation
 
-        return feature_points_force
+        is_keyframe_enough = np.linalg.norm(keyframe_force) < self.keyframe_force_threshold \
+                         and np.linalg.norm(keyframe_moment) < self.keyframe_moment_threshold
+        return feature_points_force, is_keyframe_enough
 
 
 class Keyframe:
