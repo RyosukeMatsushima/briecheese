@@ -12,13 +12,12 @@ class Optimizer:
 
         self.position_bundle_constant = 0.1
         self.rotation_bundle_constant = 0.1
-        self.position_constant = 0.01
+        self.position_constant = 0.1
         self.rotation_constant = 0.01
 
-        self.feature_points_force_threshold = 0.01
+        self.feature_points_force_threshold = 0.00002
         self.keyframe_force_threshold = 0.01
-        self.keyframe_moment_threshold = 0.01
-        self.max_trial = 1000
+        self.keyframe_moment_threshold = 0.001
 
 
     def add_keyframe(self, keyframe):
@@ -37,33 +36,31 @@ class Optimizer:
         return current_id
 
 
-    def optimize(self):
-
-        feature_points_force = np.zeros(np.shape(self.feature_points_position))
+    #TODO: return or callbackoptimize result
+    def optimize(self, max_trial):
 
         is_enough = False
 
         trial = 0
 
         while not is_enough:
-            if trial > self.max_trial:
-                break
-            trial += 1
-
+            feature_points_force = np.zeros(np.shape(self.feature_points_position))
             is_keyframes_enough = True
             for keyframe in self.keyframes:
                 output1, output2 = self.calculate(keyframe)
                 feature_points_force += output1
                 is_keyframes_enough = is_keyframes_enough and output2
 
-
             self.feature_points_position += feature_points_force
 
             evaluate_value = np.linalg.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
             is_enough = evaluate_value < self.feature_points_force_threshold
-            is_enough = is_keyframes_enough
             print('trial times: {}'.format(trial))
             print('evaluate_value: {}'.format(evaluate_value))
+
+            if trial >= max_trial:
+                break
+            trial += 1
 
 
     def calculate(self, keyframe):
@@ -84,20 +81,18 @@ class Optimizer:
             feature_point_bundle = keyframe.rotation @ feature_point_bundle[1]
 
             moment = np.cross(vector_to_feature_point, feature_point_bundle)
+            force = np.cross(moment, feature_point_bundle) * vector_size
 
-            force = np.cross(vector_to_feature_point, moment) * vector_size
-
-
-            keyframe_force -= force * self.position_constant
+            keyframe_force += force * self.position_constant
             keyframe_moment -= moment * self.rotation_constant
             feature_points_force[feature_point_id] += force * self.position_constant
 
 
-        if keyframe.position_bundle.any():
+        if keyframe.position_bundle.size != 0:
             keyframe_force -= ( keyframe.position - keyframe.position_bundle ) * self.position_bundle_constant
 
-        if keyframe.rotation_bundle.any():
-            keyframe_moment -= cv.Rodrigues( keyframe.rotation @ np.linalg.inv(keyframe.rotation_bundle) )[0][0] * self.rotation_bundle_constant
+        if keyframe.rotation_bundle.size != 0:
+            keyframe_moment -= cv.Rodrigues( keyframe.rotation @ np.linalg.inv(keyframe.rotation_bundle) )[0].T[0] * self.rotation_bundle_constant
 
         keyframe.position += keyframe_force
         keyframe.rotation = cv.Rodrigues(keyframe_moment)[0] @ keyframe.rotation
