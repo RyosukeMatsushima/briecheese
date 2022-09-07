@@ -37,7 +37,7 @@ class Optimizer:
 
 
     #TODO: return or callbackoptimize result
-    def optimize(self, max_trial):
+    def optimize(self, max_trial, callback):
 
         is_enough = False
 
@@ -55,6 +55,8 @@ class Optimizer:
 
             evaluate_value = np.linalg.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
             is_enough = evaluate_value < self.feature_points_force_threshold
+
+            callback()
             print('trial times: {}'.format(trial))
             print('evaluate_value: {}'.format(evaluate_value))
 
