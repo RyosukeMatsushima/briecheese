@@ -10,12 +10,12 @@ class Optimizer:
         self.keyframes = []
         self.last_id = 0
 
-        self.position_bundle_constant = 0.1
-        self.rotation_bundle_constant = 0.1
-        self.position_constant = 0.1
+        self.position_bundle_constant = 0.5
+        self.rotation_bundle_constant = 0.5
+        self.position_constant = 0.5
         self.rotation_constant = 0.01
 
-        self.feature_points_force_threshold = 0.00002
+        self.feature_points_force_threshold = 0.000001
         self.keyframe_force_threshold = 0.01
         self.keyframe_moment_threshold = 0.001
 
@@ -56,9 +56,7 @@ class Optimizer:
             evaluate_value = np.linalg.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
             is_enough = evaluate_value < self.feature_points_force_threshold
 
-            callback()
-            print('trial times: {}'.format(trial))
-            print('evaluate_value: {}'.format(evaluate_value))
+            callback(trial, evaluate_value)
 
             if trial >= max_trial:
                 break
@@ -70,6 +68,7 @@ class Optimizer:
         keyframe_force = np.zeros(3)
         keyframe_moment = np.zeros(3)
         feature_points_force = np.zeros(np.shape(self.feature_points_position))
+        keyframe_force_constant = self.position_constant / len(keyframe.feature_points_bundle)
 
         for feature_point_bundle in keyframe.feature_points_bundle:
 
@@ -85,7 +84,7 @@ class Optimizer:
             moment = np.cross(vector_to_feature_point, feature_point_bundle)
             force = np.cross(moment, feature_point_bundle) * vector_size
 
-            keyframe_force += force * self.position_constant
+            keyframe_force += force * keyframe_force_constant
             keyframe_moment -= moment * self.rotation_constant
             feature_points_force[feature_point_id] += force * self.position_constant
 
