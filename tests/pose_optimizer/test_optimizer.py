@@ -35,7 +35,7 @@ class OptimizerTest(unittest.TestCase):
             self.assertTrue(evaluate_value < feature_point_threshold)
 
     def test_optimize_with_full_keyframe_position(self):
-        feature_points_position, cameras_position, cameras_rotation = get_dataset()
+        feature_points_position, cameras_position, cameras_rotation = get_random_dataset()
 
         optimizer, data_manager = setup(feature_points_position,
                                         cameras_position,
@@ -52,6 +52,32 @@ class OptimizerTest(unittest.TestCase):
 
 
         optimizer.optimize(10000, optimizer_callback)
+        data_manager.finish()
+
+        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+
+    def test_optimize_only_keyframe_position(self):
+        feature_points_position, cameras_position, cameras_rotation = get_simple_dataset()
+
+        optimizer, data_manager = setup(feature_points_position,
+                                        cameras_position,
+                                        cameras_rotation,
+                                        0, 1, 1, 0,
+                                        'only_keyframe_position')
+
+
+        def optimizer_callback(trial, evaluate_value):
+            logging_data(optimizer, data_manager)
+            print('trial times: {}'.format(trial))
+
+        no_keyframe_bundle_num = [0]
+        for i, keyframe in enumerate(optimizer.keyframes):
+            if i in no_keyframe_bundle_num:
+                keyframe.position_bundle = np.array([])
+                keyframe.rotation_bundle = np.array([])
+
+        logging_data(optimizer, data_manager)
+        optimizer.optimize(10000, optimizer_callback, optimize_feature_point=False)
         data_manager.finish()
 
         self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)

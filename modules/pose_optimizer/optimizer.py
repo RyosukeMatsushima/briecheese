@@ -12,12 +12,12 @@ class Optimizer:
 
         self.position_bundle_constant = 0.5
         self.rotation_bundle_constant = 0.5
-        self.position_constant = 0.5
-        self.rotation_constant = 0.01
+        self.position_constant = 0.1
+        self.rotation_constant = 0.1
 
-        self.feature_points_force_threshold = 0.000001
-        self.keyframe_force_threshold = 0.01
-        self.keyframe_moment_threshold = 0.001
+        self.feature_points_force_threshold = 0.0001
+        self.keyframe_force_threshold = 0.0000001
+        self.keyframe_moment_threshold = 0.0000001
 
 
     def add_keyframe(self, keyframe):
@@ -37,7 +37,7 @@ class Optimizer:
 
 
     #TODO: return or callbackoptimize result
-    def optimize(self, max_trial, callback):
+    def optimize(self, max_trial, callback, optimize_feature_point=True):
 
         is_enough = False
 
@@ -51,10 +51,12 @@ class Optimizer:
                 feature_points_force += output1
                 is_keyframes_enough = is_keyframes_enough and output2
 
-            self.feature_points_position += feature_points_force
+            if optimize_feature_point:
+                self.feature_points_position += feature_points_force
 
             evaluate_value = np.linalg.norm(np.sum(feature_points_force, axis=0)) / np.shape(self.feature_points_position)[0]
-            is_enough = evaluate_value < self.feature_points_force_threshold
+            is_enough = evaluate_value < self.feature_points_force_threshold\
+                        and is_keyframes_enough
 
             callback(trial, evaluate_value)
 
@@ -69,6 +71,7 @@ class Optimizer:
         keyframe_moment = np.zeros(3)
         feature_points_force = np.zeros(np.shape(self.feature_points_position))
         keyframe_force_constant = self.position_constant / len(keyframe.feature_points_bundle)
+        keyframe_moment_constant = self.rotation_constant / len(keyframe.feature_points_bundle)
 
         for feature_point_bundle in keyframe.feature_points_bundle:
 
@@ -84,8 +87,8 @@ class Optimizer:
             moment = np.cross(vector_to_feature_point, feature_point_bundle)
             force = np.cross(moment, feature_point_bundle) * vector_size
 
-            keyframe_force += force * keyframe_force_constant
-            keyframe_moment -= moment * self.rotation_constant
+            keyframe_force -= force * keyframe_force_constant
+            keyframe_moment -= moment * keyframe_moment_constant
             feature_points_force[feature_point_id] += force * self.position_constant
 
 
