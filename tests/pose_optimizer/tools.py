@@ -51,45 +51,27 @@ def logging_data(optimizer, data_manager):
 
     data_manager.logging_trajectory(fp_data, kf_data)
 
-def get_random_dataset():
-    xy_scale = 30
-    z_scale = 30
-    z_offset = 15
+def get_random_points(xy_scale, z_scale, z_offset, num):
+    points = [ np.array([(get_random() - 0.5) * xy_scale,
+                         (get_random() - 0.5) * xy_scale,
+                          get_random() * z_scale + z_offset])
+                        for i in range(num) ]
+    return points
 
-    feature_points_position = [ np.array([(get_random() - 0.5) * xy_scale,
-                                 (get_random() - 0.5) * xy_scale,
-                                 get_random() * z_scale + z_offset])
-                        for i in range(10) ]
+def get_random_rotation(offset, scale, num):
+    random_vector = [ np.random.normal(offset, scale, 3) for p in range(num) ]
+    return [ scipy_R.from_euler('xyz', v).as_matrix() for v in random_vector ]
 
-    position = [ [0.0, 0.0, 0.0],
-                 [5.0, 0.0, 0.0],
-                 [10.0, 0.0, 0.0] ]
+def get_square_position(x, y, z):
+    points = [ [ x, y, z],
+               [ x, -y, z],
+               [-x, y, z],
+               [-x, -y, z] ]
+    return [ np.array(p) for p in points ]
 
-    cameras_position = [ np.array(p) for p in position ]
+def get_position(points):
+    return [ np.array(p) for p in points ]
 
-    rotation = [ [0.0, 0.0, 0.0],
-                 [0.0, 0.0, 0.0],
-                 [0.0, 0.0, 0.0] ]
-
-    cameras_rotation = [ scipy_R.from_euler('xyz', r).as_matrix() for r in rotation ]
-
-    return feature_points_position, cameras_position, cameras_rotation
-
-def get_simple_dataset():
-
-    feature_points_position = [ [2.0, 2.0, 5.0],
-                                [-2.0, 2.0, 5.0],
-                                [-2.0, -2.0, 5.0],
-                                [2.0, -2.0, 5.0] ]
-    feature_points_position = [ np.array(p) for p in feature_points_position ]
-
-    position = [ [0.0, 0.0, 0.0] ]
-    cameras_position = [ np.array(p) for p in position ]
-
-    rotation = [ [0.0, 0.0, 0.0],
-                 [0.0, 0.0, 0.0],
-                 [0.0, 0.0, 0.0] ]
-    cameras_rotation = [ scipy_R.from_euler('xyz', r).as_matrix() for r in rotation ]
-
-    return feature_points_position, cameras_position, cameras_rotation
+def get_rotation(vectors):
+    return [ scipy_R.from_euler('xyz', v).as_matrix() for v in vectors ]
 
