@@ -68,7 +68,7 @@ class Optimizer:
     def calculate(self, keyframe):
 
         keyframe_force = np.zeros(3)
-        keyframe_moment = np.zeros(3)
+        keyframe_moment = np.identity(3)
         feature_points_force = np.zeros(np.shape(self.feature_points_position))
         keyframe_force_constant = self.position_constant / len(keyframe.feature_points_bundle)
         keyframe_moment_constant = self.rotation_constant / len(keyframe.feature_points_bundle)
@@ -88,7 +88,7 @@ class Optimizer:
             force = np.cross(moment, feature_point_bundle) * vector_size
 
             keyframe_force -= force * keyframe_force_constant
-            keyframe_moment -= moment * keyframe_moment_constant
+            keyframe_moment = cv.Rodrigues( - moment * keyframe_moment_constant)[0] @ keyframe_moment
             feature_points_force[feature_point_id] += force * self.position_constant
 
 
@@ -96,10 +96,12 @@ class Optimizer:
             keyframe_force -= ( keyframe.position - keyframe.position_bundle ) * self.position_bundle_constant
 
         if keyframe.rotation_bundle.size != 0:
-            keyframe_moment -= cv.Rodrigues( keyframe.rotation @ np.linalg.inv(keyframe.rotation_bundle) )[0].T[0] * self.rotation_bundle_constant
+            m = cv.Rodrigues( keyframe.rotation @ np.linalg.inv(keyframe.rotation_bundle) )[0].T[0] * self.rotation_bundle_constant
+            keyframe_moment = cv.Rodrigues( -m )[0] @ keyframe_moment
+
 
         keyframe.position += keyframe_force
-        keyframe.rotation = cv.Rodrigues(keyframe_moment)[0] @ keyframe.rotation
+        keyframe.rotation = keyframe_moment @ keyframe.rotation
 
         is_keyframe_enough = np.linalg.norm(keyframe_force) < self.keyframe_force_threshold \
                          and np.linalg.norm(keyframe_moment) < self.keyframe_moment_threshold
