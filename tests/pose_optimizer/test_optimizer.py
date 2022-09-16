@@ -7,7 +7,7 @@ from tests.pose_optimizer.tools import *
 class OptimizerTest(unittest.TestCase):
 
     def tearDown(self):
-        print("finish Points2Dto3DTest")
+        print("finish OptimizerTest")
 
 
     def check_result(self,
@@ -35,6 +35,7 @@ class OptimizerTest(unittest.TestCase):
             self.assertTrue(evaluate_value < feature_point_threshold)
 
     def test_optimize_with_full_keyframe_position(self):
+        print('start test_optimize_with_full_keyframe_position')
         feature_points_position = get_random_points(3, 4, 2, 10)
         cameras_position = get_random_points(2, 2, 0, 3)
         cameras_rotation = get_random_rotation(0, 1, 3)
@@ -45,8 +46,8 @@ class OptimizerTest(unittest.TestCase):
                                         1, 1, 1, 0,
                                         'with_full_keyframe_position')
 
-        optimizer.position_bundle_constant = 0.5
-        optimizer.rotation_bundle_constant = 0.5
+        optimizer.position_bundle_constant = 0.9
+        optimizer.rotation_bundle_constant = 0.9
         optimizer.position_constant = 0.05
         optimizer.rotation_constant = 0.05
 
@@ -54,16 +55,16 @@ class OptimizerTest(unittest.TestCase):
 
         def optimizer_callback(trial, evaluate_value):
             logging_data(optimizer, data_manager)
-            print('trial times: {}'.format(trial))
-            print('evaluate_value: {}'.format(evaluate_value))
 
 
-        optimizer.optimize(10000, optimizer_callback)
+        optimizer.optimize(2000, optimizer_callback)
         data_manager.finish()
 
         self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        print('finish test_optimize_with_full_keyframe_position')
 
     def test_optimize_only_keyframe_position(self):
+        print('start test_optimize_only_keyframe_position')
 
         feature_points_position = get_random_points(10, 2, 0, 10)
         cameras_position = get_random_points(2, 2, 0, 3)
@@ -75,15 +76,14 @@ class OptimizerTest(unittest.TestCase):
                                         0, 0.1, 0.1, 0,
                                         'only_keyframe_position')
 
-        optimizer.position_bundle_constant = 0.
-        optimizer.rotation_bundle_constant = 0.
+        optimizer.position_bundle_constant = 0.9
+        optimizer.rotation_bundle_constant = 0.9
         optimizer.position_constant = 0.5
         optimizer.rotation_constant = 0.5
 
 
         def optimizer_callback(trial, evaluate_value):
             logging_data(optimizer, data_manager)
-            print('trial times: {}'.format(trial))
 
         no_keyframe_bundle_num = [0, 1, 2]
         for i, keyframe in enumerate(optimizer.keyframes):
@@ -96,6 +96,7 @@ class OptimizerTest(unittest.TestCase):
         data_manager.finish()
 
         self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        print('finish test_optimize_only_keyframe_position')
 
 
 if __name__ == "__main__":
