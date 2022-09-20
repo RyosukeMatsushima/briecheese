@@ -10,7 +10,8 @@ class FeaturePointsPositionDBTest(unittest.TestCase):
 
         db.create(data['ID'], data['x'], data['y'], data['z'])
         return_data = db.find(data['ID'])
+        ans = (data['ID'], data['x'], data['y'], data['z'])
         self.assertEqual(return_data,
-                         (data['ID'], data['x'], data['y'], data['z']),
-                         'wrong size after resize')
+                         ans,
+                         'input and output is not samed')
 
