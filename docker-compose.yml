@@ -1,0 +1,23 @@
+version: '3'
+services:
+  tests:
+    tty: true
+    build:
+      context: ./
+    volumes:
+      - .:/briecheese
+    working_dir: /briecheese
+    ports:
+      - 8000:8000
+
+  db:
+    image: mysql:8.0
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: feature_points_position
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+      TZ: 'Asis/Tokyo'
+    ports:
+      - 3306:3306
