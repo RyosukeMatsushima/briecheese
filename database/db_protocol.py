@@ -1,7 +1,7 @@
 import MySQLdb
 
 class DBProtocol:
-    def __init__(self, create_db_sql):
+    def __init__(self, table_name, data_format):
 
         self.connection = MySQLdb.connect(
             host='db',
@@ -13,7 +13,9 @@ class DBProtocol:
         self.connection.autocommit(False)
         self.cursor = self.connection.cursor()
 
-        self.cursor.execute(create_db_sql)
+        self.table_name = table_name
+        sql = "CREATE TABLE IF NOT EXISTS {} {}".format(table_name, data_format)
+        self.cursor.execute(sql)
 
     def close(self):
         self.connection.commit()
@@ -26,3 +28,8 @@ class DBProtocol:
     def find(self, sql):
         self.cursor.execute(sql)
         return self.cursor.fetchall()
+
+    def delete_all(self):
+        sql = "TRUNCATE TABLE {}".format(self.table_name)
+        self.cursor.execute(sql)
+        self.connection.commit()

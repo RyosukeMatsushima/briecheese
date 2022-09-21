@@ -5,6 +5,7 @@ class KeyframesPoseDBTest(unittest.TestCase):
 
     def test_create_and_find(self):
         db = KeyframesPoseDB()
+        db.delete_all()
 
         data = { 'ID': 12,
                  'x': 1.2, 'y': 32.3, 'z': 8.4,
