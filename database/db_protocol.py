@@ -1,14 +1,14 @@
 import MySQLdb
 
 class DBProtocol:
-    def __init__(self, db_name, create_db_sql):
+    def __init__(self, create_db_sql):
 
         self.connection = MySQLdb.connect(
             host='db',
             port=3306,
             user='docker',
             passwd='docker',
-            db=db_name
+            db='briecheese'
             )
         self.connection.autocommit(False)
         self.cursor = self.connection.cursor()
@@ -25,4 +25,4 @@ class DBProtocol:
 
     def find(self, sql):
         self.cursor.execute(sql)
-        return self.cursor.fetchall()[0]
+        return self.cursor.fetchall()
