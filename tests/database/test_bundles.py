@@ -15,7 +15,7 @@ class BundlesTest(unittest.TestCase):
                   data['kf_id'], 
                   data['x'], data['y'], data['z'] )
 
-        return_data = db.find_by_feature_point_id(data['fp_id'])
+        return_data = db.find_by(data['fp_id'])
         ans = (data['fp_id'],
                data['kf_id'], 
                data['x'], data['y'], data['z'] )

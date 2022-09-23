@@ -35,6 +35,6 @@ class BundlesDB(DBProtocol):
                                                    x, y, z)
         super().create(sql)
 
-    def find_by_feature_point_id(self, fp_id):
-        sql = "SELECT * FROM {} WHERE feature_point_id={}".format(self.table_name, fp_id)
+    def find_by(self, feature_point_id):
+        sql = "SELECT * FROM {} WHERE feature_point_id={}".format(self.table_name, feature_point_id)
         return super().find(sql)
