@@ -3,9 +3,8 @@
 from __future__ import print_function
 import sys
 import numpy as np
-from scipy.spatial.transform import Rotation as R
 import cv2 as cv
-from collections import namedtuple
+import json
 from database.descriptors_db import DescriptorsDB
 
 
@@ -20,34 +19,33 @@ class FeaturePointId:
         db_descriptors = self.db.get_all()
         descriptors = []
         for db_descriptor in db_descriptors:
-            descriptors.append(db_descriptor[1])
+            list_db_descriptor = json.loads(db_descriptor[1])
+            descriptors.append(np.uint8(list_db_descriptor))
         self.matcher.add(descriptors)
 
     def get_with_pixel(self, frame):
         keypoints, descriptors = self.detectAndCompute(frame)
         matches = self.matcher.knnMatch(descriptors, k=2)
         response = []
-        unmatch_descriptors = []
-        for keypoint, descriptor in keypoints, descriptors:
-            unmatch_descriptors.append([keypoint, descriptor])
+        unmatch_descriptors = list(zip(keypoints, descriptors))
 
         for m in matches:
             if m.distance < 1:
                 feature_point_id_column = self.db.find_by_descriptor(
-                    descriptors[m.trainIdx]
+                    json.dumps(descriptors[m.trainIdx].tolist())
                 )
                 unmatch_descriptors.pop(m.trainIdx)
                 response.append(
                     [[keypoints[m.trainIdx].pt], feature_point_id_column[0]]
                 )
         for unmatch_descriptor in unmatch_descriptors:
-            feature_point_id = self.db.create(unmatch_descriptor[1])
-            response.append([[unmatch_descriptor[0].pt], feature_point_id])
+            feature_point_id_column = self.db.create(unmatch_descriptor[1].tolist())
+            response.append([[unmatch_descriptor[0].pt], feature_point_id_column[0]])
 
         return response
 
     def detectAndCompute(self, frame):
         keypoints, descriptors = self.detector.detectAndCompute(frame, None)
-        if not descriptors:
+        if descriptors is None:
             descriptors = []
         return keypoints, descriptors
