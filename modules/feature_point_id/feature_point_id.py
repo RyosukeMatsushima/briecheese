@@ -26,18 +26,20 @@ class FeaturePointId:
     def get_with_pixel(self, frame):
         keypoints, descriptors = self.detectAndCompute(frame)
         matches = self.matcher.knnMatch(descriptors, k=2)
+        matches = [
+            m[0]
+            for m in matches
+            if len(m) == 2 and m[0].distance < m[1].distance * 0.75
+        ]
         response = []
         unmatch_descriptors = list(zip(keypoints, descriptors))
 
         for m in matches:
-            if m.distance < 1:
-                feature_point_id_column = self.db.find_by_descriptor(
-                    json.dumps(descriptors[m.trainIdx].tolist())
-                )
-                unmatch_descriptors.pop(m.trainIdx)
-                response.append(
-                    [[keypoints[m.trainIdx].pt], feature_point_id_column[0]]
-                )
+            feature_point_id_column = self.db.find_by_descriptor(
+                json.dumps(descriptors[m.trainIdx].tolist())
+            )
+            unmatch_descriptors.pop(m.trainIdx)
+            response.append([[keypoints[m.trainIdx].pt], feature_point_id_column[0]])
         for unmatch_descriptor in unmatch_descriptors:
             feature_point_id_column = self.db.create(unmatch_descriptor[1].tolist())
             response.append([[unmatch_descriptor[0].pt], feature_point_id_column[0]])
