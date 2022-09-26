@@ -1,5 +1,5 @@
-import MySQLdb
 from database.db_protocol import DBProtocol
+
 
 class DescriptorsDB(DBProtocol):
     def __init__(self):
@@ -8,14 +8,21 @@ class DescriptorsDB(DBProtocol):
         super().__init__(table_name, data_format)
 
     def create(self, json_descriptor):
-        sql = "INSERT INTO {}(descriptor) VALUES (\'{}\')".format(self.table_name, json_descriptor)
+        sql = "INSERT INTO {}(descriptor) VALUES ('{}')".format(
+            self.table_name, json_descriptor
+        )
         super().create(sql)
         return self.find_by_descriptor(json_descriptor)
 
     def find_by_descriptor(self, json_descriptor):
-        sql = "SELECT * FROM {} WHERE descriptor -> \"$\" = CAST(\'{}\' AS JSON)".format(self.table_name, json_descriptor)
+        sql = "SELECT * FROM {} WHERE descriptor -> \"$\" = CAST('{}' AS JSON)".format(
+            self.table_name, json_descriptor
+        )
         return super().find(sql)[0]
-    
+
     def get_all(self):
         sql = "SELECT * FROM {}".format(self.table_name)
         return super().find(sql)
+
+    def delete_all(self):
+        super().delete_all()

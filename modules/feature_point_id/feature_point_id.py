@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import sys
 import numpy as np
 import cv2 as cv
 import json
@@ -21,7 +20,8 @@ class FeaturePointId:
         for db_descriptor in db_descriptors:
             list_db_descriptor = json.loads(db_descriptor[1])
             descriptors.append(np.uint8(list_db_descriptor))
-        self.matcher.add(descriptors)
+        if descriptors:
+            self.matcher.add(np.asarray([descriptors]))
 
     def get_with_pixel(self, frame):
         keypoints, descriptors = self.detectAndCompute(frame)
@@ -32,17 +32,23 @@ class FeaturePointId:
             if len(m) == 2 and m[0].distance < m[1].distance * 0.75
         ]
         response = []
-        unmatch_descriptors = list(zip(keypoints, descriptors))
-
+        match_keypoints = []
         for m in matches:
             feature_point_id_column = self.db.find_by_descriptor(
                 json.dumps(descriptors[m.trainIdx].tolist())
             )
-            unmatch_descriptors.pop(m.trainIdx)
             response.append([[keypoints[m.trainIdx].pt], feature_point_id_column[0]])
-        for unmatch_descriptor in unmatch_descriptors:
-            feature_point_id_column = self.db.create(unmatch_descriptor[1].tolist())
-            response.append([[unmatch_descriptor[0].pt], feature_point_id_column[0]])
+            match_keypoints.append(keypoints[m.trainIdx])
+
+        all_descriptors = list(zip(keypoints, descriptors))
+        add_matcher_descriptors = []
+        for descriptors in all_descriptors:
+            if not descriptors[0] in match_keypoints:
+                feature_point_id_column = self.db.create(descriptors[1].tolist())
+                response.append([[descriptors[0].pt], feature_point_id_column[0]])
+                add_matcher_descriptors.append(np.uint8(descriptors[1]))
+        if add_matcher_descriptors:
+            self.matcher.add(np.asarray([add_matcher_descriptors]))
 
         return response
 
