@@ -23,6 +23,3 @@ class DescriptorsDB(DBProtocol):
     def get_all(self):
         sql = "SELECT * FROM {}".format(self.table_name)
         return super().find(sql)
-
-    def delete_all(self):
-        super().delete_all()
