@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  run-unittests-on-docker:
 
     runs-on: ubuntu-latest
 
