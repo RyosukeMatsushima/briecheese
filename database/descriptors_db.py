@@ -1,6 +1,7 @@
 from database.db_protocol import DBProtocol
 import os
 
+
 class DescriptorsDB(DBProtocol):
     def __init__(self):
         table_name = os.getenv("DESCRIPTORS_DB_TABLE", "descriptors")
