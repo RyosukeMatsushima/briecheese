@@ -15,8 +15,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker compose build && docker compose up -d
+      run: docker compose up -d --build
+
+    - name: Run flake8
+      run: docker compose exec app flake8
 
     - name: Run unittests
-      run: docker exec briecheese-tests-1 python3 -m unittest
-
+      run: docker compose exec app python3 -m unittest
+    
+    - name: Stop the Docker
+      run: docker compose down

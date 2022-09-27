@@ -17,3 +17,6 @@ RUN pip3 install pandas
 # DB
 RUN apt-get install -y python3-dev default-libmysqlclient-dev && apt-get clean
 RUN pip3 install mysqlclient
+
+# SAST
+RUN pip3 install flake8 black

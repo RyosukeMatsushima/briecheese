@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 
+
 class FigMaker:
     def __init__(self, title, is_3d):
         self.fig = plt.figure(figsize=(10, 10))
         self.is_3d = is_3d
 
         if self.is_3d:
-            self.ax = self.fig.add_subplot(111, projection='3d')
+            self.ax = self.fig.add_subplot(111, projection="3d")
         else:
             self.ax = self.fig.add_subplot(111)
 
@@ -29,6 +30,3 @@ class FigMaker:
     def write(self):
         plt.legend()
         plt.show()
-
-
-

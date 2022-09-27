@@ -1,5 +1,6 @@
 import cv2 as cv
 
+
 def aruco_dict():
     return {
         "DICT_4X4_50": cv.aruco.DICT_4X4_50,
@@ -22,5 +23,5 @@ def aruco_dict():
         "DICT_APRILTAG_16h5": cv.aruco.DICT_APRILTAG_16h5,
         "DICT_APRILTAG_25h9": cv.aruco.DICT_APRILTAG_25h9,
         "DICT_APRILTAG_36h10": cv.aruco.DICT_APRILTAG_36h10,
-        "DICT_APRILTAG_36h11": cv.aruco.DICT_APRILTAG_36h11
+        "DICT_APRILTAG_36h11": cv.aruco.DICT_APRILTAG_36h11,
     }

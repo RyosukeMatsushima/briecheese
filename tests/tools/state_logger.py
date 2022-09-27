@@ -1,7 +1,7 @@
 import pandas as pd
 
-class StateLogger:
 
+class StateLogger:
     def __init__(self, file_name, columns):
 
         self.file_name = file_name
@@ -25,6 +25,5 @@ class StateLogger:
             return
 
         df = pd.DataFrame(self.data_stock, columns=self.columns)
-        df.to_csv(self.file_name, mode='a', header=False)
+        df.to_csv(self.file_name, mode="a", header=False)
         self.data_stock = []
-

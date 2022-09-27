@@ -7,14 +7,14 @@ class VideoStreamer:
         self.cap = cv.VideoCapture(src)
         self.paused = False
 
-        cv.namedWindow('plane')
+        cv.namedWindow("plane")
 
     def create_view(self, frame):
         vis = frame.copy()
         return vis
 
     def get_commands(self, key):
-        if key == ord('p'):
+        if key == ord("p"):
             self.paused = not self.paused
 
     def run(self):
@@ -31,5 +31,4 @@ class VideoStreamer:
 
             vis = self.create_view(frame)
 
-            cv.imshow('plane', vis)
-
+            cv.imshow("plane", vis)
