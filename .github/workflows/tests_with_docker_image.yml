@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker compose build && docker compose up -d
+      run: docker compose up -d --build
 
     - name: Run flake8
       run: docker exec briecheese-tests-1 flake8
