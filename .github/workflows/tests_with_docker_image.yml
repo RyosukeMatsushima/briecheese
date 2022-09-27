@@ -18,10 +18,10 @@ jobs:
       run: docker compose up -d --build
 
     - name: Run flake8
-      run: docker compose exec tests flake8
+      run: docker compose exec app flake8
 
     - name: Run unittests
-      run: docker compose exec tests python3 -m unittest
+      run: docker compose exec app python3 -m unittest
     
     - name: Stop the Docker
       run: docker compose down

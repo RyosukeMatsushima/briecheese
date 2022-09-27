@@ -1,6 +1,6 @@
 version: '3'
 services:
-  tests:
+  app:
     tty: true
     build:
       context: ./
@@ -9,6 +9,9 @@ services:
     working_dir: /briecheese
     ports:
       - 8000:8000
+    depends_on:
+      feature_points_position_db:
+        condition: service_healthy
 
   feature_points_position_db:
     image: mysql:8.0
@@ -21,3 +24,5 @@ services:
       TZ: 'Asis/Tokyo'
     ports:
       - 3306:3306
+    healthcheck:
+        test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
