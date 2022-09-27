@@ -1,6 +1,6 @@
 import unittest
 import cv2 as cv
-from unittest.mock import  patch
+from unittest.mock import patch
 from modules.feature_point_id.feature_point_id import FeaturePointId
 from database.descriptors_db import DescriptorsDB
 from database.db_protocol import DBProtocol
