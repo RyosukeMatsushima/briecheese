@@ -22,3 +22,6 @@ jobs:
 
     - name: Run unittests
       run: docker exec briecheese-tests-1 python3 -m unittest
+    
+    - name: Stop the Docker
+      run: docker compose down
