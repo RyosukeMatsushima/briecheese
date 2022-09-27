@@ -1,4 +1,3 @@
-
 import numpy as np
 import cv2 as cv
 
@@ -7,12 +6,12 @@ from collections import namedtuple
 from .armarker import ARMarker
 
 
-PoseToKeyframe = namedtuple('PoseToKeyframe', 'pose, markerInfo')
-MarkerInfo = namedtuple('MarkerInfo', 'rvec, tvec, corners')
-Pose = namedtuple('Pose', 'rotMat, position')
+PoseToKeyframe = namedtuple("PoseToKeyframe", "pose, markerInfo")
+MarkerInfo = namedtuple("MarkerInfo", "rvec, tvec, corners")
+Pose = namedtuple("Pose", "rotMat, position")
+
 
 class PoseEstimator(ARMarker):
-
     def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients):
 
         super().__init__(aruco_dict_type, matrix_coefficients, distortion_coefficients)
@@ -49,7 +48,9 @@ class PoseEstimator(ARMarker):
         if not self.key_frame_pose:
             return PoseToKeyframe(pose=None, markerInfo=markerInfo)
 
-        rot_mat = np.linalg.inv(self.key_frame_pose.rotMat) @ self.current_frame_pose.rotMat
+        rot_mat = (
+            np.linalg.inv(self.key_frame_pose.rotMat) @ self.current_frame_pose.rotMat
+        )
         position = self.key_frame_pose.position - self.current_frame_pose.position
         pose = Pose(rotMat=rot_mat, position=position)
 

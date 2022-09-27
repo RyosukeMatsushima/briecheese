@@ -17,6 +17,8 @@ jobs:
     - name: Build the Docker image
       run: docker compose build && docker compose up -d
 
+    - name: Run flake8
+      run: docker exec briecheese-tests-1 flake8
+
     - name: Run unittests
       run: docker exec briecheese-tests-1 python3 -m unittest
-
