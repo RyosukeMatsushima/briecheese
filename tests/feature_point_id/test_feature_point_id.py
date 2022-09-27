@@ -16,21 +16,21 @@ class FeaturePointId_get_with_pixel(unittest.TestCase):
     def test_new_feature_point_id(self):
         with patch.dict("os.environ", {"DESCRIPTORS_DB_TABLE": "test_descriptors"}):
             frame = cv.imread("tests/feature_point_id/sample.jpg")
-            featurePointIdklass = FeaturePointId()
+            featurePointIdclass = FeaturePointId()
             db = DescriptorsDB()
-            response = featurePointIdklass.get_with_pixel(frame)
+            response = featurePointIdclass.get_with_pixel(frame)
             expected = len(db.get_all())
             self.assertEqual(expected, len(response))
     
     def test_known_feature_point_id(self):
         with patch.dict("os.environ", {"DESCRIPTORS_DB_TABLE": "test_descriptors"}):
             frame = cv.imread("tests/feature_point_id/sample.jpg")
-            featurePointIdklass = FeaturePointId()
+            featurePointIdclass = FeaturePointId()
             db = DescriptorsDB()
-            response = featurePointIdklass.get_with_pixel(frame)
+            response = featurePointIdclass.get_with_pixel(frame)
             expected = len(db.get_all())
             self.assertEqual(expected, len(response))
-            response = featurePointIdklass.get_with_pixel(frame)
+            response = featurePointIdclass.get_with_pixel(frame)
             expected = len(db.get_all())
             self.assertEqual(expected, len(response))
 
