@@ -62,7 +62,7 @@ class FeaturePointId_get_with_pixel(unittest.TestCase):
             shift_id = shift_response[0][1]
             expected = [
                 base + shift
-                for (base, shift) in zip(list(response[shift_id -1][0]), [30, 30])
+                for (base, shift) in zip(list(response[shift_id - 1][0]), [30, 30])
             ]
             self.assertEqual(expected, list(shift_response[0][0]))
 
