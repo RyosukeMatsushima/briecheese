@@ -55,14 +55,14 @@ class FeaturePointId_get_with_pixel(unittest.TestCase):
     def test_shift_pixel(self):
         with patch.dict("os.environ", {"DESCRIPTORS_DB_TABLE": self.db_table}):
             frame = cv.imread("tests/feature_point_id/sample1.jpg")
-            shift_frame = cv.imread("tests/feature_point_id/sample1_shift30.jpg")
+            shift_frame = cv.imread("tests/feature_point_id/sample1_shift30_10.jpg")
             featurePointIdclass = FeaturePointId()
             response = featurePointIdclass.get_with_pixel(frame)
             shift_response = featurePointIdclass.get_with_pixel(shift_frame)
             shift_id = shift_response[0][1]
             expected = [
                 base + shift
-                for (base, shift) in zip(list(response[shift_id - 1][0]), [30, 30])
+                for (base, shift) in zip(list(response[shift_id - 1][0]), [30, 10])
             ]
             self.assertEqual(expected, list(shift_response[0][0]))
 
