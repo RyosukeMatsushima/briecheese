@@ -27,25 +27,23 @@ class FeaturePointId:
         keypoints, descriptors = self.detectAndCompute(frame)
         matches = self.matcher.knnMatch(descriptors, k=2)
         matches = [
-            m[0]
-            for m in matches
-            if len(m) == 2 and m[0].distance < m[1].distance * 0.75
+            m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.5
         ]
         response = []
         match_keypoints = []
         for m in matches:
             feature_point_id_column = self.db.find_by_descriptor(
-                json.dumps(descriptors[m.trainIdx].tolist())
+                json.dumps(self.matcher.getTrainDescriptors()[0][m.trainIdx].tolist())
             )
-            response.append([[keypoints[m.trainIdx].pt], feature_point_id_column[0]])
-            match_keypoints.append(keypoints[m.trainIdx])
+            response.append([keypoints[m.queryIdx].pt, feature_point_id_column[0]])
+            match_keypoints.append(keypoints[m.queryIdx])
 
         all_descriptors = list(zip(keypoints, descriptors))
         add_matcher_descriptors = []
         for descriptors in all_descriptors:
             if not descriptors[0] in match_keypoints:
                 feature_point_id_column = self.db.create(descriptors[1].tolist())
-                response.append([[descriptors[0].pt], feature_point_id_column[0]])
+                response.append([descriptors[0].pt, feature_point_id_column[0]])
                 add_matcher_descriptors.append(np.uint8(descriptors[1]))
         if add_matcher_descriptors:
             self.matcher.add(np.asarray([add_matcher_descriptors]))
