@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
 
-from modules.pose_optimizer.data_store.keyframe import Keyframe
+from modules.pose_optimizer.datastore.keyframe import Keyframe
 
 class Optimizer:
     def __init__(self):
