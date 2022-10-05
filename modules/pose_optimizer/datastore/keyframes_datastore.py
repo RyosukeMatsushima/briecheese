@@ -1,24 +1,26 @@
+import numpy as np
+
 
 class KeyframesStore:
 
     def __init__(self):
-        self.keyframes_id = {}
+        self.keyframes = {}
         self.last_observed_position = None
         self.last_observed_rotation = None
         self.observed_position_count = 0
         self.observed_rotation_count = 0
 
-    def add(self, bundles, observed_position, observed_rotation):
+    def add(self, keyframe_id, bundles, observed_position, observed_rotation):
 
         # create new keyframe.
         # about position
-        new_keyframe_position = None
+        new_keyframe_position = np.array([])
         if observed_position.size != 0:
             self.observed_position_count += 1
             self.last_observed_position = observed_position
 
             if not self.last_observed_position:
-                [ self.keykeyframes[keyframe_id].position = observed_position
+                [ self.keyframes[keyframe_id].position = observed_position
                         for keyframe_id in self.keyframes ]
 
 
