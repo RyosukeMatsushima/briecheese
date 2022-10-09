@@ -6,21 +6,26 @@ class DataStore:
         self.featurePointsStore = FeaturePointsStore()
         self.keyframesStore = KeyframesStore()
 
-        # {feature_point_id: [keyframe_id, direction]}
+        # {feature_point_id: [keyframe_id, direction], ...}
+        # pending bundles while the feature point is observed only one keyframe.
+        # feature point needs to be observed atleast 2 keyframes.
         self.pending_bundles = {}
-        # {feature_point_id: [[keyframe_id, direction], ..]}
+
+        # {feature_point_id: [[keyframe_id, direction], ...], ...}
+        # keyframe pose will be estimated with pose obtained feature points.
+        # add cueing_bundles after keyframe pose estimated and optimize again with the new feature points.
         self.cueing_bundles = {}
 
-        self.minimum_related_feature_points_count = 8
+        self.MINIMUM_RELATED_FEATURE_POINTS_COUNT = 8
 
-    def add_new_keyframe(self,
-                         keyframe_id,
-                         observed_position,
-                         observed_rotation,
-                         bundles):
+    def add_keyframe(self,
+                     keyframe_id,
+                     observed_position,
+                     observed_rotation,
+                     bundles):
 
         # add bundle to new keyframe bundle if the feature point is already exists.
-        new_keyframe_bundles = []
+        known_bundles_in_keyframe = []
         for i, bundle in enumerate(bunldes):
             feature_point_id = bundle[0]
             direction = bundle[1]
@@ -28,16 +33,20 @@ class DataStore:
             if feature_point_id in self.featurePointsStore.ids:
                 bundles.pop(i)
                 feature_piint_index = self.featurePointsStore.ids.index(feature_point_id)
-                new_keyframe_bundles += [feature_piint_index, direction]
+                known_bundles_in_keyframe += [feature_piint_index, direction]
 
         # check keyframe is computable
-        if len(new_keyframe_bundles) < self.minimum_related_feature_points_count:
+        if len(known_bundles_in_keyframe) < self.MINIMUM_RELATED_FEATURE_POINTS_COUNT:
             return False
 
         self.keyframesStore.add(keyframe_id,
-                                new_keyframe_bundles,
+                                known_bundles_in_keyframe,
                                 observed_position,
                                 observed_rotation)
+        self.add_bundles(keyframe_id, bundles)
+        return True
+
+    def add_bundles(self, keyframe_id, bundles):
 
         # add bundle to cue if the feature point is observed two from keyframes (which means the feature point position is computable).
         for i, bundle in enumerate(bunldes):
@@ -52,12 +61,6 @@ class DataStore:
                     self.cueing_bundles.update{keyframe_id: []}
                 self.cueing_bundles[feature_point_id] += [[keyframe_id, direction]]
 
-        # add bundle to pending_bundles.
-        for i, bundle in enumerate(bunldes):
-            feature_point_id = bundle[0]
-            direction = bundle[1]
-
-            self.pending_bundles.update({feature_point_id: [keyframe_id, direction]})
-
-        return True
+            else:
+                self.pending_bundles.update({feature_point_id: [keyframe_id, direction]})
 

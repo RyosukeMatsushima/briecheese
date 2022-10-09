@@ -1,4 +1,9 @@
 
+'''
+FeatruePointsStore manages ids and array order.
+Optimizer care only array order of position data not ids.
+'''
+
 class FeaturePointsStore:
 
     def __init__(self):
