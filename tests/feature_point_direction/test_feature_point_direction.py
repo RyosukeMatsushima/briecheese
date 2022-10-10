@@ -5,7 +5,7 @@ from modules.feature_point_direction.feature_point_direction import (
 
 
 class FeaturePointDirection_get(unittest.TestCase):
-    fx = fy = 1
+    fx = fy = 3
     cx = 500
     cy = 200
 
