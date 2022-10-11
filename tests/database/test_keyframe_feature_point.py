@@ -20,11 +20,11 @@ class KeyframeFeaturePointDBTest(unittest.TestCase):
         ).delete_all()
         DBProtocol(
             self.db_table_keyframe,
-            "(id INT AUTO_INCREMENT, position JSON, rotation JSON, observed_position JSON, observed_rotation JSON, PRIMARY KEY (id))",
+            "(id INT, position JSON, rotation JSON, observed_position JSON, observed_rotation JSON)",
         ).delete_all()
         DBProtocol(
             self.db_table_feature_point,
-            "(id INT AUTO_INCREMENT, position JSON, PRIMARY KEY (id))",
+            "(id INT, position JSON)",
         ).delete_all()
 
     def tearDownAfterClass(self):
@@ -34,11 +34,11 @@ class KeyframeFeaturePointDBTest(unittest.TestCase):
         ).delete_all()
         DBProtocol(
             self.db_table_keyframe,
-            "(id INT AUTO_INCREMENT, position JSON, rotation JSON, observed_position JSON, observed_rotation JSON, PRIMARY KEY (id))",
+            "(id INT, position JSON, rotation JSON, observed_position JSON, observed_rotation JSON)",
         ).delete_all()
         DBProtocol(
             self.db_table_feature_point,
-            "(id INT AUTO_INCREMENT, position JSON, PRIMARY KEY (id))",
+            "(id INT, position JSON)",
         ).delete_all()
 
     def test_create_and_get_all(self):
@@ -59,6 +59,7 @@ class KeyframeFeaturePointDBTest(unittest.TestCase):
                 [randint(0, 10), randint(0, 10), randint(0, 10)],
             ]
             keyframe_db.create(
+                keyframe_params[0],
                 keyframe_params[1],
                 keyframe_params[2],
                 keyframe_params[3],
@@ -66,7 +67,7 @@ class KeyframeFeaturePointDBTest(unittest.TestCase):
             )
             feature_point_db = FeaturePointDB()
             feature_point_params = [1, [randint(0, 10), randint(0, 10), randint(0, 10)]]
-            feature_point_db.create(feature_point_params[1])
+            feature_point_db.create(feature_point_params[0], feature_point_params[1])
 
             db = KeyframeFeaturePointDB()
             direction = [randint(0, 10), randint(0, 10), randint(0, 10)]

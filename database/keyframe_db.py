@@ -5,13 +5,13 @@ import os
 class KeyframeDB(DBProtocol):
     def __init__(self):
         table_name = os.getenv("KEYFRAME_DB_TABLE", "keyframe")
-        data_format = "(id INT AUTO_INCREMENT, position JSON, rotation JSON, observed_position JSON, observed_rotation JSON, PRIMARY KEY (id))"
+        data_format = "(id INT, position JSON, rotation JSON, observed_position JSON, observed_rotation JSON)"
 
         super().__init__(table_name, data_format)
 
-    def create(self, position, rotation, observed_position, observed_rotation):
-        sql = "INSERT INTO {}(position, rotation, observed_position, observed_rotation) VALUES ('{}', '{}', '{}', '{}')".format(
-            self.table_name, position, rotation, observed_position, observed_rotation
+    def create(self, id, position, rotation, observed_position, observed_rotation):
+        sql = "INSERT INTO {}(id, position, rotation, observed_position, observed_rotation) VALUES ({}, '{}', '{}', '{}', '{}')".format(
+            self.table_name, id, position, rotation, observed_position, observed_rotation
         )
         super().create(sql)
 
