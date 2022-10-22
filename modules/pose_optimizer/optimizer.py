@@ -34,8 +34,25 @@ class Optimizer:
         self.last_id += 1
         return current_id
     
-    def optimize_keyframe_pose(self, max_trial, optimize_feature_point, feature_point_directions):
+    def optimize_keyframe_pose(self, max_trial, optimize_feature_point, feature_point_position_directions):
+
+        self.feature_points_position = np.array( feature_point_position_directions[:][0] )
+
+        directions = [ i, direction for i, direction in enumerate(feature_point_position_directions[0][:]) ]
+
+        keyfeame = Keyframe(np.array([0.0, 0.0, 0.0]),
+                            np.array([0.0, 0.0, 0.0]),
+                            np.array([]),
+                            np.array([]),
+                            directions)
+
+        self.keyfeames = [ keyfeame ]
+
         self.optimize(max_trial, optimize_feature_point)
+
+        pose = [ self.keyfeames[0].position, self.keyfeames[0].rotation ]
+
+        return pose
 
     # TODO: return or callbackoptimize result
     def optimize(self, max_trial, optimize_feature_point=True):
