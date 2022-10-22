@@ -33,9 +33,12 @@ class Optimizer:
         current_id = self.last_id
         self.last_id += 1
         return current_id
+    
+    def optimize_keyframe_pose(self, max_trial, optimize_feature_point, feature_point_directions):
+        self.optimize(max_trial, optimize_feature_point)
 
     # TODO: return or callbackoptimize result
-    def optimize(self, max_trial, callback, optimize_feature_point=True):
+    def optimize(self, max_trial, optimize_feature_point=True):
 
         is_enough = False
 
@@ -60,8 +63,6 @@ class Optimizer:
                 evaluate_value < self.feature_points_force_threshold
                 and is_keyframes_enough
             )
-
-            callback(trial, evaluate_value)
 
             if trial >= max_trial:
                 break
