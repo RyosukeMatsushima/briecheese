@@ -3,7 +3,7 @@ from modules.pose_optimizer.optimizer import Keyframe
 from database.feature_points_position import FeaturePointPositionsDB
 
 class FeatuePointPositions:
- 
+
     def __init__(self):
 
         self.max_trial = 5000
@@ -12,6 +12,7 @@ class FeatuePointPositions:
         self.keyframes = []
 
         self.available_feature_point_ids = []
+        self.feature_point_positions = np.array([])
         self.pending_feature_point_ids = {} # { feature_point_id: [ [ keyframe_index, direction ], ... ], ... }
 
         self.last_keyframe_position = None
@@ -31,7 +32,7 @@ class FeatuePointPositions:
         # check the keyframe is far enough from last keyframe.
         if self.last_keyframe_position:
             distance = np.linalg.norm( observed_position - self.last_keyframe_position )
-    
+
             if distance < self.distance_from_last_keyframe_threshold:
                 return
 
@@ -42,9 +43,9 @@ class FeatuePointPositions:
         for feature_points_direction in feature_points_directions:
             feature_point_id = feature_points_direction[0]
             direction = feature_points_direction[1]
-    
+
             feature_point_index = get_feature_point_index( feature_point_id )
-    
+
             if feature_point_index:
                 available_feature_point_direcations.append( [ feature_point_index, direction ] )
             else:
@@ -69,35 +70,47 @@ class FeatuePointPositions:
                                  observed_rotation,
                                  available_feature_point_direcations)
         self.keyframes.append( new_keyframe )
-    
+
         # optimize after interval.
         self.keyframes_interval += 1
-    
+
         if self.keyframes_interval > self.optimize_keyframes_interval:
-            #TODO: calculate feature point.
-            #TODO: save feature point position to DB.
+            feature_point_positions = Optimizer().optimize_feature_point_positions( self.max_trial, True, self.keyframes, self.init_featrue_point_positions() )
+
+            db = FeaturePointsPositionDB()
+
+            for i, feature_point_id in enumerate(self.available_feature_point_ids):
+                feature_point_position = feature_point_positions[i]
+
+                db.create( feature_point_id,
+                           feature_point_position[0],
+                           feature_point_position[1],
+                           feature_point_position[2] )
+
+
+     def init_featrue_point_positions(self):
+         return np.zeros( [ len( self.available_feature_point_ids ), 3 ] )
 
 
      def get_feature_point_index(self, feature_point_id):
 
          if feature_point_id in self.available_feature_point_ids:
              return self.available_feature_point_ids.index( feature_point_id )
-
          if feature_point_id in self.pending_feature_point_ids:
              return self.pop_pending_feature_point( feature_point_id )
 
          return None
 
      def pop_pending_feature_point(self, feature_point_id):
-     
+
          feature_point_index = len( self.available_feature_point_ids )
          self.available_feature_point_ids.append( feature_point_id )
-     
+
          keyframe_direction = self.pending_feature_point_ids.pop( feature_point_id )
          keyframe_index = keyframe_index[0]
          direction = keyframe_direction[1]
-     
+
          self.keyframes[keyframe_index].direction.append( [ feature_point_index, direction ] )
-     
+
          return feature_point_index
-     
+

@@ -54,6 +54,17 @@ class Optimizer:
 
         return pose
 
+    def optimize_feature_point_positions(self,
+                                        max_trial,
+                                        optimize_feature_point,
+                                        keyframes,
+                                        init_feature_point_position):
+        self.keyframes = keyframes
+        self.feature_points_position = init_feature_point_position
+        self.optimize(max_trial, optimize_feature_point)
+
+        return self.feature_points_position
+
     # TODO: return or callbackoptimize result
     def optimize(self, max_trial, optimize_feature_point=True):
 
