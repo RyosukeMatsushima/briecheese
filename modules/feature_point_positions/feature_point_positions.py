@@ -29,6 +29,7 @@ class FeatuePointPositions:
                      feature_point_directions):
 
 
+
         # check the keyframe is far enough from last keyframe.
         if self.last_keyframe_position:
             distance = np.linalg.norm( observed_position - self.last_keyframe_position )
@@ -88,29 +89,30 @@ class FeatuePointPositions:
                            feature_point_position[2] )
 
 
-     def init_featrue_point_positions(self):
-         return np.zeros( [ len( self.available_feature_point_ids ), 3 ] )
+    def init_featrue_point_positions(self):
+        return np.zeros( [ len( self.available_feature_point_ids ), 3 ] )
 
 
-     def get_feature_point_index(self, feature_point_id):
+    def get_feature_point_index(self, feature_point_id):
 
-         if feature_point_id in self.available_feature_point_ids:
-             return self.available_feature_point_ids.index( feature_point_id )
-         if feature_point_id in self.pending_feature_point_ids:
-             return self.pop_pending_feature_point( feature_point_id )
+        if feature_point_id in self.available_feature_point_ids:
+            return self.available_feature_point_ids.index( feature_point_id )
+        if feature_point_id in self.pending_feature_point_ids:
+            return self.pop_pending_feature_point( feature_point_id )
 
-         return None
+        return None
 
-     def pop_pending_feature_point(self, feature_point_id):
+    def pop_pending_feature_point(self, feature_point_id):
 
-         feature_point_index = len( self.available_feature_point_ids )
-         self.available_feature_point_ids.append( feature_point_id )
+        feature_point_index = len( self.available_feature_point_ids )
+        self.available_feature_point_ids.append( feature_point_id )
 
-         keyframe_direction = self.pending_feature_point_ids.pop( feature_point_id )
-         keyframe_index = keyframe_index[0]
-         direction = keyframe_direction[1]
+        keyframe_direction = self.pending_feature_point_ids.pop( feature_point_id )
+        keyframe_index = keyframe_index[0]
+        direction = keyframe_direction[1]
 
-         self.keyframes[keyframe_index].direction.append( [ feature_point_index, direction ] )
+        self.keyframes[keyframe_index].direction.append( [ feature_point_index, direction ] )
 
-         return feature_point_index
+        return feature_point_index
+
 
