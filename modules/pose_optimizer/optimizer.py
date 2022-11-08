@@ -38,7 +38,7 @@ class Optimizer:
 
         self.feature_points_position = np.array( feature_point_position_directions[:][0] )
 
-        directions = [ i, direction for i, direction in enumerate(feature_point_position_directions[0][:]) ]
+        directions = [ i, direction for i, direction in enumerate(feature_point_position_directions[:][1]) ]
 
         keyfeame = Keyframe(np.array([0.0, 0.0, 0.0]),
                             np.array([0.0, 0.0, 0.0]),
