@@ -1,6 +1,9 @@
 import unittest
 import numpy as np
 from scipy.spatial.transform import Rotation as scipy_R
+
+from modules.pose_optimizer.optimizer import Optimizer
+from tests.pose_optimizer.data_manager import DataManager
 from tests.pose_optimizer.tools import (
     setup,
     logging_data,
@@ -57,9 +60,9 @@ class OptimizerTest(unittest.TestCase):
             feature_points_position,
             cameras_position,
             cameras_rotation,
-            1,
-            1,
-            1,
+            0.5,
+            0.5,
+            0.5,
             0,
             "with_full_keyframe_position",
         )
@@ -74,10 +77,10 @@ class OptimizerTest(unittest.TestCase):
         def optimizer_callback(trial, evaluate_value):
             logging_data(optimizer, data_manager)
 
-        optimizer.optimize(2000, optimizer_callback)
+        optimizer.optimize(2000, callback=optimizer_callback)
         data_manager.finish()
 
-        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        self.check_result(optimizer, data_manager, 0.05, 0.05, 0.1)
         print("finish test_optimize_with_full_keyframe_position")
 
     def test_optimize_only_keyframe_position(self):
@@ -113,11 +116,44 @@ class OptimizerTest(unittest.TestCase):
                 keyframe.rotation_bundle = np.array([])
 
         logging_data(optimizer, data_manager)
-        optimizer.optimize(2000, optimizer_callback, optimize_feature_point=False)
+        optimizer.optimize(
+            2000, callback=optimizer_callback, optimize_feature_point=False
+        )
         data_manager.finish()
 
-        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        self.check_result(optimizer, data_manager, 0.05, 0.05, 0.1)
         print("finish test_optimize_only_keyframe_position")
+
+    def test_optimize_keyframe_pose(self):
+        print("start test_optimize_keyframe_pose")
+
+        feature_points_position = get_random_points(10, 2, 0, 15)
+        cameras_position = get_random_points(2, 2, 0, 1)
+        cameras_rotation = get_random_rotation(0, 1, 1)
+
+        data_manager = DataManager(
+            feature_points_position,
+            cameras_position,
+            cameras_rotation,
+            "optimize_keyframe_pose"
+            )
+
+        optimizer = Optimizer()
+
+        def optimizer_callback(trial, evaluate_value):
+            logging_data(optimizer, data_manager)
+
+        optimizer.optimize_keyframe_pose(
+            data_manager.feature_points_true_position,
+            2000,
+            data_manager.get_keyframes_bundle(0.0)[0],
+            optimizer_callback
+        )
+
+        data_manager.finish()
+
+        self.check_result(optimizer, data_manager, 0.05, 0.05, 0.1)
+        print("finish test_optimize_keyframe_pose")
 
 
 if __name__ == "__main__":

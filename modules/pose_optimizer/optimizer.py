@@ -9,10 +9,10 @@ class Optimizer:
         self.keyframes = []
         self.last_id = 0
 
-        self.position_bundle_constant = 0.5
-        self.rotation_bundle_constant = 0.5
-        self.position_constant = 0.1
-        self.rotation_constant = 0.1
+        self.position_bundle_constant = 0.9
+        self.rotation_bundle_constant = 0.9
+        self.position_constant = 0.5
+        self.rotation_constant = 0.5
 
         self.feature_points_force_threshold = 0.0001
         self.keyframe_force_threshold = 0.0000001
@@ -35,38 +35,45 @@ class Optimizer:
         return current_id
 
     def optimize_keyframe_pose(
-        self, max_trial, optimize_feature_point, feature_point_position_directions
+        self,
+        feature_point_positions,
+        max_trial,
+        feature_point_position_directions,
+        callback=None,
     ):
 
-        self.feature_points_position = np.array(feature_point_position_directions[:][0])
+        self.feature_points_position = feature_point_positions
 
-        directions = [
-            [i, direction]
-            for i, direction in enumerate(feature_point_position_directions[:][1])
-        ]
-
-        keyfeame = Keyframe(
+        keyframe = Keyframe(
             np.array([0.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, 0.0]),
+            np.identity(3),
             np.array([]),
             np.array([]),
-            directions,
+            feature_point_position_directions
         )
 
-        self.keyfeames = [keyfeame]
+        self.keyframes = [keyframe]
 
-        self.optimize(max_trial, optimize_feature_point)
+        self.optimize(
+            max_trial, optimize_feature_point=False, callback=callback
+        )
 
-        pose = [self.keyfeames[0].position, self.keyfeames[0].rotation]
+        pose = [self.keyframes[0].position, self.keyframes[0].rotation]
 
         return pose
 
     def optimize_feature_point_positions(
-        self, max_trial, optimize_feature_point, keyframes, init_feature_point_position
+        self,
+        max_trial,
+        keyframes,
+        init_feature_point_position,
+        callback=None,
     ):
         self.keyframes = keyframes
         self.feature_points_position = init_feature_point_position
-        self.optimize(max_trial, optimize_feature_point)
+        self.optimize(
+            max_trial, optimize_feature_point=True, callback=callback
+        )
 
         return self.feature_points_position
 
@@ -114,7 +121,6 @@ class Optimizer:
         )
 
         for feature_point_bundle in keyframe.feature_points_bundle:
-
             feature_point_id = feature_point_bundle[0]
             current_feature_point_position = self.feature_points_position[
                 feature_point_id
@@ -125,7 +131,6 @@ class Optimizer:
             vector_to_feature_point /= vector_size
 
             feature_point_bundle = keyframe.rotation @ feature_point_bundle[1]
-
             moment = np.cross(vector_to_feature_point, feature_point_bundle)
             force = np.cross(moment, feature_point_bundle) * vector_size
 
