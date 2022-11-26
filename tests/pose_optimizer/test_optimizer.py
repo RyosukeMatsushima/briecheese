@@ -77,7 +77,7 @@ class OptimizerTest(unittest.TestCase):
         optimizer.optimize(2000, callback=optimizer_callback)
         data_manager.finish()
 
-        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        self.check_result(optimizer, data_manager, 0.1, 0.1, 0.1)
         print("finish test_optimize_with_full_keyframe_position")
 
     def test_optimize_only_keyframe_position(self):
@@ -116,7 +116,7 @@ class OptimizerTest(unittest.TestCase):
         optimizer.optimize(2000, optimize_feature_point=False, callback=None)
         data_manager.finish()
 
-        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        self.check_result(optimizer, data_manager, 0.1, 0.1, 0.1)
         print("finish test_optimize_only_keyframe_position")
 
 
