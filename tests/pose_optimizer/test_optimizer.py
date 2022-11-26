@@ -4,6 +4,8 @@ from scipy.spatial.transform import Rotation as scipy_R
 from tests.pose_optimizer.tools import (
     setup,
     logging_data,
+)
+from tests.tools.generate_data import (
     get_random_points,
     get_random_rotation,
 )
