@@ -60,4 +60,3 @@ def logging_data(optimizer, data_manager):
         kf_data += kf.position.tolist()
 
     data_manager.logging_trajectory(fp_data, kf_data)
-

@@ -115,7 +115,9 @@ class OptimizerTest(unittest.TestCase):
                 keyframe.rotation_bundle = np.array([])
 
         logging_data(optimizer, data_manager)
-        optimizer.optimize(2000, optimize_feature_point=False, callback=optimizer_callback)
+        optimizer.optimize(
+            2000, optimize_feature_point=False, callback=optimizer_callback
+        )
         data_manager.finish()
 
         self.check_result(optimizer, data_manager, 0.1, 0.1, 0.1)

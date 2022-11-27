@@ -5,6 +5,7 @@ from scipy.spatial.transform import Rotation as scipy_R
 def get_random():
     return np.random.rand(1)[0]
 
+
 def get_random_points(xy_scale, z_scale, z_offset, num):
     points = [
         np.array(

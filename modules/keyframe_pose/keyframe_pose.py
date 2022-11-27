@@ -22,15 +22,17 @@ class KeyframePose:
         for direction in feature_point_directions:
             _, x, y, z = FeaturePointsPositionDB().find(direction[0])
             feature_point_number = optimizer.add_feature_point(np.array([x, y, z]))
-            feature_point_position_directions.append([feature_point_number, direction[1]])
+            feature_point_position_directions.append(
+                [feature_point_number, direction[1]]
+            )
 
         keyframe = Keyframe(
-                        self.last_keyframe_position,
-                        self.last_keyframe_rotation,
-                        np.array([]),
-                        np.array([]),
-                        feature_point_position_directions
-                        )
+            self.last_keyframe_position,
+            self.last_keyframe_rotation,
+            np.array([]),
+            np.array([]),
+            feature_point_position_directions,
+        )
 
         optimizer.add_keyframe(keyframe)
 

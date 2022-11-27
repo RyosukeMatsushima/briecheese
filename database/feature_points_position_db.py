@@ -2,9 +2,12 @@ import os
 
 from database.db_protocol import DBProtocol
 
+
 class FeaturePointsPositionDB(DBProtocol):
     def __init__(self):
-        table_name = os.getenv("FEATURE_POINTS_POSITION_DB_TABLE", "feature_points_position")
+        table_name = os.getenv(
+            "FEATURE_POINTS_POSITION_DB_TABLE", "feature_points_position"
+        )
         data_format = "(id INT, x FLOAT, y FLOAT, z FLOAT)"
 
         super().__init__(table_name, data_format)

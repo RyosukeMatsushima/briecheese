@@ -15,6 +15,7 @@ from tests.tools.generate_data import (
     get_random_rotation,
 )
 
+
 class KeyframePoseTest(unittest.TestCase):
     db_table = "test_feature_point_positions_db"
     db_format = "(id INT, x FLOAT, y FLOAT, z FLOAT)"
@@ -32,37 +33,43 @@ class KeyframePoseTest(unittest.TestCase):
         ).delete_all()
 
     def test_keyframe_pose(self):
-        with patch.dict("os.environ", {"FEATURE_POINTS_POSITION_DB_TABLE": self.db_table}):
-            print('start test_keyframe_pose')
+        with patch.dict(
+            "os.environ", {"FEATURE_POINTS_POSITION_DB_TABLE": self.db_table}
+        ):
+            print("start test_keyframe_pose")
             feature_points_position = get_random_points(10, 2, 0, 15)
             cameras_position = get_random_points(2, 2, 0, 1)
             cameras_rotation = get_random_rotation(0, 1, 1)
- 
+
             data_manager = DataManager(
                 feature_points_position,
                 cameras_position,
                 cameras_rotation,
-                "test_keyframe_pose"
-                )
+                "test_keyframe_pose",
+            )
 
             # create feature point positions db for test.
             id_candidates = list(range(100))
             random.shuffle(id_candidates)
 
-            for i, feature_point_position in enumerate(data_manager.feature_points_true_position):
-                FeaturePointsPositionDB().create(id_candidates[i],
-                                               feature_point_position[0],
-                                               feature_point_position[1],
-                                               feature_point_position[2])
+            for i, feature_point_position in enumerate(
+                data_manager.feature_points_true_position
+            ):
+                FeaturePointsPositionDB().create(
+                    id_candidates[i],
+                    feature_point_position[0],
+                    feature_point_position[1],
+                    feature_point_position[2],
+                )
 
             feature_point_directions = []
             for i, direction in enumerate(data_manager.get_keyframes_bundle(0.0)[0]):
                 feature_point_directions.append([id_candidates[i], direction[1]])
 
             position, rotation = KeyframePose().get_pose(feature_point_directions)
-       
+
             data_manager.finish()
-    
+
             # check keyframe position error
             keyframe_position_threshold = 0.1
             evaluate_value = np.linalg.norm(
@@ -80,7 +87,8 @@ class KeyframePoseTest(unittest.TestCase):
             )
             for val in evaluate_value:
                 self.assertTrue(val < keyframe_rotation_threshold)
-            print('finish test_keyframe_pose')
+            print("finish test_keyframe_pose")
+
 
 if __name__ == "__main__":
     unittest.main()
