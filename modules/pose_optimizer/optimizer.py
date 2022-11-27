@@ -35,7 +35,7 @@ class Optimizer:
         return current_id
 
     # TODO: return or callbackoptimize result
-    def optimize(self, max_trial, callback, optimize_feature_point=True):
+    def optimize(self, max_trial, optimize_feature_point=True, callback=None):
 
         is_enough = False
 
@@ -61,7 +61,8 @@ class Optimizer:
                 and is_keyframes_enough
             )
 
-            callback(trial, evaluate_value)
+            if callback is not None:
+                callback(trial, evaluate_value)
 
             if trial >= max_trial:
                 break

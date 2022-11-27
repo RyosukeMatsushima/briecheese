@@ -1,11 +1,8 @@
 import pandas as pd
 import pathlib
 import argparse
-import sys
-from tests.tools.fig_maker import FigMaker
 
-current_dir = pathlib.Path(__file__).resolve().parent
-sys.path.append(str(current_dir) + "/../../")
+from fig_maker import FigMaker
 
 ap = argparse.ArgumentParser()
 ap.add_argument("log_file_name")

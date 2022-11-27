@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class FigMaker:
@@ -7,7 +8,7 @@ class FigMaker:
         self.is_3d = is_3d
 
         if self.is_3d:
-            self.ax = self.fig.add_subplot(111, projection="3d")
+            self.ax = self.fig.add_subplot(111, projection=Axes3D.name)
         else:
             self.ax = self.fig.add_subplot(111)
 

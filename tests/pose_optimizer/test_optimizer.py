@@ -4,6 +4,8 @@ from scipy.spatial.transform import Rotation as scipy_R
 from tests.pose_optimizer.tools import (
     setup,
     logging_data,
+)
+from tests.tools.generate_data import (
     get_random_points,
     get_random_rotation,
 )
@@ -74,10 +76,10 @@ class OptimizerTest(unittest.TestCase):
         def optimizer_callback(trial, evaluate_value):
             logging_data(optimizer, data_manager)
 
-        optimizer.optimize(2000, optimizer_callback)
+        optimizer.optimize(2000, callback=optimizer_callback)
         data_manager.finish()
 
-        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        self.check_result(optimizer, data_manager, 0.1, 0.1, 0.1)
         print("finish test_optimize_with_full_keyframe_position")
 
     def test_optimize_only_keyframe_position(self):
@@ -113,10 +115,12 @@ class OptimizerTest(unittest.TestCase):
                 keyframe.rotation_bundle = np.array([])
 
         logging_data(optimizer, data_manager)
-        optimizer.optimize(2000, optimizer_callback, optimize_feature_point=False)
+        optimizer.optimize(
+            2000, optimize_feature_point=False, callback=optimizer_callback
+        )
         data_manager.finish()
 
-        self.check_result(optimizer, data_manager, 0.01, 0.01, 0.1)
+        self.check_result(optimizer, data_manager, 0.1, 0.1, 0.1)
         print("finish test_optimize_only_keyframe_position")
 
 
