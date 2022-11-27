@@ -1,6 +1,3 @@
-import numpy as np
-from scipy.spatial.transform import Rotation as scipy_R
-
 from modules.pose_optimizer.optimizer import Optimizer, Keyframe
 from tests.tools.data_manager import DataManager
 
