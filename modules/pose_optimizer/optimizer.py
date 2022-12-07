@@ -20,6 +20,7 @@ class Optimizer:
 
     def add_keyframe(self, keyframe):
         self.keyframes += [keyframe]
+        return len(self.keyframes) - 1
 
     def add_feature_point(self, init_position):
 
