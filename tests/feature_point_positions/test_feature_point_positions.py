@@ -37,7 +37,7 @@ class FeaturePointPositionsTest(unittest.TestCase):
             "os.environ", {"FEATURE_POINTS_POSITION_DB_TABLE": self.db_table}
         ):
             print("start test_feature_point_positions")
-            feature_points_position = get_random_points(10, 2, 0, 15)
+            feature_points_position = get_random_points(3, 4, 2, 10)
             cameras_position = get_random_points(2, 2, 0, 10)
             cameras_rotation = get_random_rotation(0, 1, 10)
 
@@ -52,17 +52,18 @@ class FeaturePointPositionsTest(unittest.TestCase):
             id_candidates = list(range(100))
             random.shuffle(id_candidates)
             feature_point_directions = []
-            for i, direction in enumerate(data_manager.get_keyframes_bundle(0.0)[0]):
-                feature_point_directions.append([id_candidates[i], direction[1]])
+            for bundles in data_manager.get_keyframes_bundle(0.0):
+                bundles = [ [id_candidates[i], bundle[1] ] for i, bundle in enumerate(bundles) ]
+                feature_point_directions.append(bundles)
 
             featurePointPositions = FeaturePointPositions()
 
             # create keyframes as test data.
-            for i, _ in enumerate(data_manager.cameras_true_position):
+            for i, directions in enumerate(feature_point_directions):
                 featurePointPositions.add_keyframe(
                     data_manager.cameras_true_position[i],
                     data_manager.cameras_true_rotation[i],
-                    feature_point_directions
+                    directions
                 )
 
             # evaluate results.
