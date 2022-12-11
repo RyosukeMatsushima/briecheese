@@ -19,7 +19,9 @@ class FeaturePointPositions:
         self, observed_position, observed_roattion, feature_point_directions
     ):
 
-        self.onePiece.add_keyframe(observed_position, observed_roattion, feature_point_directions)
+        self.onePiece.add_keyframe(
+            observed_position, observed_roattion, feature_point_directions
+        )
 
         if self.onePiece.keyframe_number < self.one_piece_length_threshold_to_optimize:
             return
@@ -50,13 +52,12 @@ class FeaturePointPositions:
                     np.array(one_piece.keyframes[keyframe_id].observed_rotation),
                     np.array(one_piece.keyframes[keyframe_id].observed_position),
                     np.array(one_piece.keyframes[keyframe_id].observed_rotation),
-                    []
+                    [],
                 )
             )
             keyframe_ids_and_numbers.update({keyframe_id: keyframe_number})
 
         feature_point_ids_and_numbers = {}
-
 
         for feature_point_id in one_piece.feature_point_ids:
 
@@ -65,14 +66,18 @@ class FeaturePointPositions:
                 continue
 
             feature_point_number = optimizer.add_feature_point(np.zeros(3))
-            feature_point_ids_and_numbers.update({feature_point_id: feature_point_number})
+            feature_point_ids_and_numbers.update(
+                {feature_point_id: feature_point_number}
+            )
 
             for direction in one_piece.feature_point_ids[feature_point_id]:
                 keyframe_id = direction[0]
                 keyframe_number = keyframe_ids_and_numbers[keyframe_id]
                 bundle = direction[1]
 
-                optimizer.keyframes[keyframe_number].feature_points_bundle.append([feature_point_number, bundle])
+                optimizer.keyframes[keyframe_number].feature_points_bundle.append(
+                    [feature_point_number, bundle]
+                )
 
         optimizer.position_bundle_constant = 0.9
         optimizer.rotation_bundle_constant = 0.9
@@ -81,9 +86,9 @@ class FeaturePointPositions:
 
         optimizer.optimize(2000)
 
-        feature_point_positions = {}  #{feature_point_id: position}
+        feature_point_positions = {}  # {feature_point_id: position}
         for feature_point_id in one_piece.feature_point_ids:
-            feature_point_number= feature_point_ids_and_numbers[feature_point_id]
+            feature_point_number = feature_point_ids_and_numbers[feature_point_id]
             position = optimizer.feature_points_position[feature_point_number]
             feature_point_positions.update({feature_point_id: position})
 

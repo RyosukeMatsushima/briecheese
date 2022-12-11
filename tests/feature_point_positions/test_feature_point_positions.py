@@ -2,10 +2,11 @@ import unittest
 from unittest.mock import patch
 
 import numpy as np
-from scipy.spatial.transform import Rotation as scipy_R
 import random
 
-from modules.feature_point_positions.feature_point_positions import FeaturePointPositions
+from modules.feature_point_positions.feature_point_positions import (
+    FeaturePointPositions,
+)
 from database.db_protocol import DBProtocol
 from database.feature_points_position_db import FeaturePointsPositionDB
 
@@ -53,7 +54,9 @@ class FeaturePointPositionsTest(unittest.TestCase):
             random.shuffle(id_candidates)
             feature_point_directions = []
             for bundles in data_manager.get_keyframes_bundle(0.0):
-                bundles = [ [id_candidates[i], bundle[1] ] for i, bundle in enumerate(bundles) ]
+                bundles = [
+                    [id_candidates[i], bundle[1]] for i, bundle in enumerate(bundles)
+                ]
                 feature_point_directions.append(bundles)
 
             featurePointPositions = FeaturePointPositions()
@@ -63,13 +66,17 @@ class FeaturePointPositionsTest(unittest.TestCase):
                 featurePointPositions.add_keyframe(
                     data_manager.cameras_true_position[i],
                     data_manager.cameras_true_rotation[i],
-                    directions
+                    directions,
                 )
 
             # evaluate results.
             feature_point_position_threshold = 0.1
-            for i, feature_point_ture_position in enumerate(data_manager.feature_points_true_position):
-                estimated_position = FeaturePointsPositionDB().find(id_candidates[i])[1:]
+            for i, feature_point_ture_position in enumerate(
+                data_manager.feature_points_true_position
+            ):
+                estimated_position = FeaturePointsPositionDB().find(id_candidates[i])[
+                    1:
+                ]
                 evaluate_value = np.linalg.norm(
                     estimated_position - feature_point_ture_position
                 )
