@@ -5,7 +5,7 @@ RUN pip3 install --upgrade pip setuptools
 
 # OpenCV
 RUN apt-get install -y libgl1-mesa-glx
-RUN pip3 install opencv-python
+RUN pip3 install opencv-contrib-python
 
 # scipy
 RUN apt-get install -y libopenblas-dev cmake gfortran
