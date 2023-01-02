@@ -3,13 +3,12 @@ import cv2 as cv
 
 class ARMarker:
     def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients):
-        self.aruco_dict = cv.aruco.Dictionary_get(aruco_dict_type)
+        self.aruco_dict = cv.aruco.getPredefinedDictionary(aruco_dict_type)
         self.matrix_coefficients = matrix_coefficients
         self.distortion_coefficients = distortion_coefficients
 
     def detect_marker(self, frame):
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        _ = cv.aruco.DetectorParameters_create()
 
         corners, _, _ = cv.aruco.detectMarkers(gray, self.aruco_dict)
 
