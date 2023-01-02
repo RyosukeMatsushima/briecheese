@@ -14,6 +14,12 @@ RUN pip3 install scipy
 # pandas
 RUN pip3 install pandas
 
+# Flask
+RUN pip3 install Flask
+
+# yaml
+RUN pip3 install pyyaml
+
 # DB
 RUN apt-get install -y python3-dev default-libmysqlclient-dev && apt-get clean
 RUN pip3 install mysqlclient
