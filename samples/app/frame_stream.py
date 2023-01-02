@@ -23,7 +23,8 @@ class FrameStream():
         if not success:
             raise RuntimeError('Failed read capture')
 
+        return self.encode(image)
+
+    def encode(self, image):
         ret, frame = cv.imencode('.jpg', image)
         return frame
-
-

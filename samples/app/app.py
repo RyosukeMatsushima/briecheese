@@ -1,6 +1,7 @@
 from flask import Flask, render_template, Response
 
 from frame_stream import FrameStream
+from marker_detection import MarkerDetection
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ def gen(frame_stream):
 
 @app.route("/video_feed")
 def video_feed():
-    return Response(gen(FrameStream()),
+    return Response(gen(MarkerDetection()),
             mimetype="multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == "__main__":
