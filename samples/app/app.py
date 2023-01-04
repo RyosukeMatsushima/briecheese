@@ -1,19 +1,38 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 
-from frame_stream import FrameStream
 from marker_detection import MarkerDetection
 
+from random import randint
+import time
+
 app = Flask(__name__)
+frame_stream = MarkerDetection()
 
 @app.route("/")
 def index():
     return "Hello World!"
 
-@app.route("/stream")
+@app.route("/stream", methods=['GET', 'POST'])
 def stream():
-    return render_template("stream.html")
+    if request.method == 'GET':
+        return render_template("stream.html")
 
-def gen(frame_stream):
+    if request.method == 'POST':
+        command_dict = {
+            '0': 'pause',
+            '1': 'break',
+        }
+
+        command = request.form['command']
+
+        if command_dict[command] == 'pause':
+            frame_stream.pause = True
+        elif command_dict[command] == 'break':
+            frame_stream.pause = False
+
+        return render_template("stream.html")
+
+def gen():
     while True:
         frame = frame_stream.create_view()
 
@@ -22,10 +41,11 @@ def gen(frame_stream):
                 b"Content-Type: image/jpeg\r\n\r\n" + frame.tobytes() + b"\r\n")
         else:
             print("frame is none")
+        time.sleep(0.2)
 
 @app.route("/video_feed")
 def video_feed():
-    return Response(gen(MarkerDetection()),
+    return Response(gen(),
             mimetype="multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == "__main__":
