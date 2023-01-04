@@ -2,8 +2,16 @@
   <head>
     <title>Flask Streaming Test</title>
   </head>
+
   <body>
     <h1>Flask Streaming Test</h1>
     <img src="{{ url_for('video_feed') }}">
+
+    <form action="/stream" method="POST">
+        <input type="radio" name="command" value="0" checked>pause</input>
+        <input type="radio" name="command" value="1" >break</input>
+        <button type="submit">send</button>
+    </form>
+
   </body>
 </html>

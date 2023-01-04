@@ -36,6 +36,10 @@ class MarkerDetection(FrameStream):
         )
 
     def create_view(self):
+
+        if self.last_frame.size != 0 and self.pause:
+            return self.last_frame
+
         success, frame = self.cap.read()
 
         if not success:

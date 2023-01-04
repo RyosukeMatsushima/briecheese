@@ -1,4 +1,5 @@
 import cv2 as cv
+import numpy as np
 import yaml
 
 class FrameStream():
@@ -14,10 +15,16 @@ class FrameStream():
         if not self.cap.isOpened():
             raise RuntimeError('Failed to open video capture')
 
+        self.pause = False
+        self.last_frame = np.array([])
+
     def __del__(self):
         self.cap.release()
 
     def create_view(self):
+        if self.last_frame.size != 0 and self.pause:
+            return self.last_frame
+
         success, image = self.cap.read()
 
         if not success:
@@ -27,4 +34,5 @@ class FrameStream():
 
     def encode(self, image):
         ret, frame = cv.imencode('.jpg', image)
+        self.last_frame = frame
         return frame
