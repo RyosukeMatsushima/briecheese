@@ -1,12 +1,12 @@
 from flask import Flask, render_template, Response, request
 
-from marker_detection import MarkerDetection
+from briecheese_interface import BriecheeseInterface
 
 from random import randint
 import time
 
 app = Flask(__name__)
-frame_stream = MarkerDetection()
+frame_stream = BriecheeseInterface()
 
 @app.route("/")
 def index():
@@ -34,7 +34,7 @@ def stream():
 
 def gen():
     while True:
-        frame = frame_stream.create_view()
+        frame = frame_stream.do_next_frame()
 
         if frame is not None:
             yield (b"--frame\r\n"
