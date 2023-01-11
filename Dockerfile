@@ -5,7 +5,7 @@ RUN pip3 install --upgrade pip setuptools
 
 # OpenCV
 RUN apt-get install -y libgl1-mesa-glx
-RUN pip3 install opencv-python
+RUN pip3 install opencv-contrib-python
 
 # scipy
 RUN apt-get install -y libopenblas-dev cmake gfortran
@@ -13,6 +13,12 @@ RUN pip3 install scipy
 
 # pandas
 RUN pip3 install pandas
+
+# Flask
+RUN pip3 install Flask
+
+# yaml
+RUN pip3 install pyyaml
 
 # DB
 RUN apt-get install -y python3-dev default-libmysqlclient-dev && apt-get clean

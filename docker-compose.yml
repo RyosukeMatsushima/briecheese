@@ -4,6 +4,7 @@ services:
     tty: true
     build:
       context: ./
+      dockerfile: Dockerfile
     volumes:
       - .:/briecheese
     working_dir: /briecheese
