@@ -15,6 +15,7 @@ from samples.common.video_streamer import VideoStreamer
 # from modules.main.main import Main
 from modules.armarker.pose_estimator import PoseEstimator
 from modules.armarker.aruco_dict import aruco_dict
+from database.feature_points_position_db import FeaturePointsPositionDB
 
 
 class BriecheeseInterface(FrameStream):
@@ -39,7 +40,24 @@ class BriecheeseInterface(FrameStream):
         )
 
         #self.briecheese = Main()
+        self.feature_point_positions_db = FeaturePointsPositionDB()
         self.mode = 'create_map' # mode: 'create_map' or 'get_pose'
+
+        self.init_db() #TODO: remove
+
+    #TODO: remove - this function is just for debug.
+    def init_db(self):
+        self.feature_point_positions_db.delete_all()
+        feature_point_positions = np.float32([[0.1, 0.1, 0.],
+                                              [-0.1, 0.1, 0.],
+                                              [-0.1, -0.1, 0.],
+                                              [0.1, -0.1, 0.],
+                                              [0.1, 0.1, 0.1],
+                                              [-0.1, 0.1, 0.1],
+                                              [-0.1, -0.1, 0.1],
+                                              [0.1, -0.1, 0.1]])
+        for i, point in enumerate(feature_point_positions):
+            self.feature_point_positions_db.create(i, point[0], point[1], point[2])
 
     def do_next_frame(self):
 
@@ -72,16 +90,7 @@ class BriecheeseInterface(FrameStream):
             if self.mode == 'create_map':
                 self.create_map(frame, camera_position, camera_rotation_matrix)
 
-            feature_point_positions = np.float32([[0.1, 0.1, 0.],
-                                                  [-0.1, 0.1, 0.],
-                                                  [-0.1, -0.1, 0.],
-                                                  [0.1, -0.1, 0.],
-                                                  [0.1, 0.1, 0.1],
-                                                  [-0.1, 0.1, 0.1],
-                                                  [-0.1, -0.1, 0.1],
-                                                  [0.1, -0.1, 0.1]])
-
-            frame_view = self.draw_feature_points(frame_view, feature_point_positions, marker_rotation_vector_from_camera_coordinate, marker_position_from_camera_coordinate)
+            frame_view = self.draw_feature_points(frame_view, marker_rotation_vector_from_camera_coordinate, marker_position_from_camera_coordinate)
 
             value_view = self.draw_text(value_view, 'pose from armarker', (10, 15))
             value_view = self.draw_position_value(value_view, camera_position, (10, 35))
@@ -97,6 +106,23 @@ class BriecheeseInterface(FrameStream):
         return
         #self.briecheese.get_pose(frame)
 
+    def draw_feature_points(self, view, rvec, tvec):
+
+        for feature_point_position_data in self.feature_point_positions_db.get_all():
+            view = self.draw_point(view, feature_point_position_data[0], feature_point_position_data[1:], rvec, tvec)
+
+        return view
+
+    def draw_point(self, view, feature_point_id, point, rvec, tvec):
+        imgpt, jac = cv.projectPoints(point, rvec, tvec, self.camera_matrix, self.distortion_coefficients)
+
+        imgpt = tuple(imgpt[0][0].astype(int))
+
+        cv.circle(view, imgpt, 6, (0,0,255), -1)
+        view = self.draw_text(view, 'id_' + str(feature_point_id), (imgpt[0], imgpt[1] - 10))
+
+        return view
+
     def draw_armarker(self, view, rvec, tvec, corners):
 
         # Draw a square around the markers
@@ -111,16 +137,6 @@ class BriecheeseInterface(FrameStream):
             tvec,
             0.1,
         )
-        return view
-
-    def draw_feature_points(self, view, points, rvec, tvec):
-        imgpts, jac = cv.projectPoints(points, rvec, tvec, self.camera_matrix, self.distortion_coefficients)
-
-        for point in imgpts:
-            point = tuple(point[0].astype(int))
-
-            cv.circle(view,point, 6, (0,0,255), -1)
-
         return view
 
     def draw_position_value(self, view, position, origin_pixel):
