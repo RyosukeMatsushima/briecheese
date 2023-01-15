@@ -21,7 +21,10 @@ class FrameStream():
     def __del__(self):
         self.cap.release()
 
-    def encode(self, image):
-        ret, frame = cv.imencode('.jpg', image)
-        self.last_frame = frame
+    def next_frame(self):
+        success, frame = self.cap.read()
+
+        if not success:
+            raise RuntimeError('Failed read capture')
+
         return frame

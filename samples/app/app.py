@@ -6,7 +6,7 @@ from random import randint
 import time
 
 app = Flask(__name__)
-frame_stream = BriecheeseInterface()
+briecheeseInterface = BriecheeseInterface()
 
 @app.route("/")
 def index():
@@ -21,20 +21,26 @@ def stream():
         command_dict = {
             '0': 'pause',
             '1': 'break',
+            '2': 'create_map',
+            '3': 'get_pose'
         }
 
         command = request.form['command']
 
         if command_dict[command] == 'pause':
-            frame_stream.pause = True
+            briecheeseInterface.pause = True
         elif command_dict[command] == 'break':
-            frame_stream.pause = False
+            briecheeseInterface.pause = False
+        elif command_dict[command] == 'create_map':
+            briecheeseInterface.change_mode(command_dict[command])
+        elif command_dict[command] == 'get_pose':
+            briecheeseInterface.change_mode(command_dict[command])
 
         return render_template("stream.html")
 
 def gen():
     while True:
-        frame = frame_stream.do_next_frame()
+        frame = briecheeseInterface.do_next_frame()
 
         if frame is not None:
             yield (b"--frame\r\n"

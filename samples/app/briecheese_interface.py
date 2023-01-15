@@ -39,9 +39,12 @@ class BriecheeseInterface(FrameStream):
             aruco_type, self.camera_matrix, self.distortion_coefficients
         )
 
+        self.frameStream = FrameStream()
+
         #self.briecheese = Main()
         self.feature_point_positions_db = FeaturePointsPositionDB()
         self.mode = 'create_map' # mode: 'create_map' or 'get_pose'
+        self.modes = ['create_map', 'get_pose']
 
         self.init_db() #TODO: remove
 
@@ -64,10 +67,7 @@ class BriecheeseInterface(FrameStream):
         if self.last_frame.size != 0 and self.pause:
             return self.last_frame
 
-        success, frame = self.cap.read()
-
-        if not success:
-            raise RuntimeError('Failed read capture')
+        frame = self.frameStream.next_frame()
 
         frame_view = frame.copy()
         value_view = np.ones(frame.shape, np.uint8) * 205
@@ -96,6 +96,10 @@ class BriecheeseInterface(FrameStream):
             value_view = self.draw_position_value(value_view, camera_position, (10, 35))
             value_view = self.draw_rotation_value(value_view, camera_rotation_matrix, (10, 55))
 
+        if self.mode == 'get_pose':
+            self.get_pose(frame)
+            #TODO: draw outupt to value_view.
+
         return self.encode(cv.hconcat([frame_view, value_view]))
 
     def create_map(self, frame, observed_position, observed_rotation):
@@ -105,6 +109,18 @@ class BriecheeseInterface(FrameStream):
     def get_pose(self, frame):
         return
         #self.briecheese.get_pose(frame)
+
+    def change_mode(self, mode):
+        if not mode in self.modes:
+            raise ValueError('invalid mode: {}'.format(mode))
+
+        self.mode = mode
+        self.frameStream = FrameStream()
+
+    def encode(self, image):
+        ret, frame = cv.imencode('.jpg', image)
+        self.last_frame = frame
+        return frame
 
     def draw_feature_points(self, view, rvec, tvec):
 
