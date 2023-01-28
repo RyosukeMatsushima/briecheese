@@ -5,11 +5,6 @@ import yaml
 
 from frame_stream import FrameStream
 
-import sys
-import pathlib
-current_dir = pathlib.Path(__file__).resolve().parent
-sys.path.append(str(current_dir) + "/../../")
-
 # from modules.main.main import Main
 from modules.armarker.pose_estimator import PoseEstimator
 from modules.armarker.aruco_dict import aruco_dict
