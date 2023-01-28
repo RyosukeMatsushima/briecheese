@@ -38,4 +38,3 @@ class PoseEstimator(ARMarker):
         markerInfo = MarkerInfo(rvec=rvec, tvec=tvec, corners=corners)
 
         return PoseToKeyframe(pose=self.current_frame_pose, markerInfo=markerInfo)
-
