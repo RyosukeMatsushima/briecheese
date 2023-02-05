@@ -20,10 +20,11 @@ class Optimizer:
 
     def add_keyframe(self, keyframe):
         self.keyframes += [keyframe]
+        return len(self.keyframes) - 1
 
     def add_feature_point(self, init_position):
 
-        if self.feature_points_position.any():
+        if len(self.feature_points_position) != 0:
             self.feature_points_position = np.append(
                 self.feature_points_position, [init_position], axis=0
             )
