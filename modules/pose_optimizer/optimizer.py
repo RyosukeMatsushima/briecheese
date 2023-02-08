@@ -20,10 +20,11 @@ class Optimizer:
 
     def add_keyframe(self, keyframe):
         self.keyframes += [keyframe]
+        return len(self.keyframes) - 1
 
     def add_feature_point(self, init_position):
 
-        if self.feature_points_position.any():
+        if len(self.feature_points_position) != 0:
             self.feature_points_position = np.append(
                 self.feature_points_position, [init_position], axis=0
             )
@@ -35,7 +36,7 @@ class Optimizer:
         return current_id
 
     # TODO: return or callbackoptimize result
-    def optimize(self, max_trial, callback, optimize_feature_point=True):
+    def optimize(self, max_trial, optimize_feature_point=True, callback=None):
 
         is_enough = False
 
@@ -61,7 +62,8 @@ class Optimizer:
                 and is_keyframes_enough
             )
 
-            callback(trial, evaluate_value)
+            if callback is not None:
+                callback(trial, evaluate_value)
 
             if trial >= max_trial:
                 break
