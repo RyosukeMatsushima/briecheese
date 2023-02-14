@@ -5,7 +5,7 @@ import yaml
 
 from frame_stream import FrameStream
 
-# from modules.main.main import Main
+from modules.main.main import Main
 from modules.armarker.pose_estimator import PoseEstimator
 from modules.armarker.aruco_dict import aruco_dict
 from database.feature_points_position_db import FeaturePointsPositionDB
@@ -34,12 +34,19 @@ class BriecheeseInterface(FrameStream):
 
         self.frameStream = FrameStream()
 
-        # self.briecheese = Main()
+        self.briecheese = self.init_briecheese(self.camera_matrix)
         self.feature_point_positions_db = FeaturePointsPositionDB()
         self.mode = "create_map"  # mode: 'create_map' or 'get_pose'
         self.modes = ["create_map", "get_pose"]
 
-        self.init_db()  # TODO: remove
+    def init_briecheese(self, camera_matrix):
+
+        fx = camera_matrix[0][0]
+        fy = camera_matrix[1][1]
+        cx = camera_matrix[0][2]
+        cy = camera_matrix[1][2]
+
+        return Main(fx, fy, cx, cy)
 
     # TODO: remove - this function is just for debug.
     def init_db(self):
@@ -105,18 +112,17 @@ class BriecheeseInterface(FrameStream):
             )
 
         if self.mode == "get_pose":
-            self.get_pose(frame)
+            position, rotation = self.get_pose(frame)
+            print("get_pose result position: {} rotation: {}".format(position, rotation))
             # TODO: draw outupt to value_view.
 
         return self.encode(cv.hconcat([frame_view, value_view]))
 
     def create_map(self, frame, observed_position, observed_rotation):
-        return
-        # self.briecheese.add_keyframe(frame, observed_rotation, observed_rotation)
+        self.briecheese.add_frame(frame, observed_position, observed_rotation)
 
     def get_pose(self, frame):
-        return
-        # self.briecheese.get_pose(frame)
+        return self.briecheese.get_pose(frame)
 
     def change_mode(self, mode):
         if mode not in self.modes:

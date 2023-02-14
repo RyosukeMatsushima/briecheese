@@ -46,7 +46,6 @@ def gen():
             )
         else:
             print("frame is none")
-        time.sleep(0.2)
 
 
 @app.route("/video_feed")
