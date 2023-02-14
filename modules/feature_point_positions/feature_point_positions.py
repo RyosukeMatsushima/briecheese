@@ -67,7 +67,7 @@ class FeaturePointPositions:
 
             feature_point_number = optimizer.add_feature_point(np.zeros(3))
             feature_point_ids_and_numbers.update(
-                {feature_point_id: feature_point_number}
+                {feature_point_number: feature_point_id}
             )
 
             for direction in one_piece.feature_point_ids[feature_point_id]:
@@ -87,9 +87,8 @@ class FeaturePointPositions:
         optimizer.optimize(2000)
 
         feature_point_positions = {}  # {feature_point_id: position}
-        for feature_point_id in one_piece.feature_point_ids:
-            feature_point_number = feature_point_ids_and_numbers[feature_point_id]
-            position = optimizer.feature_points_position[feature_point_number]
+        for feature_point_number, position in enumerate(optimizer.feature_points_position):
+            feature_point_id = feature_point_ids_and_numbers[feature_point_number]
             feature_point_positions.update({feature_point_id: position})
 
         return feature_point_positions

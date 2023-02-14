@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from modules.feature_point_id.feature_point_id import FeaturePointId
-from modules.featrue_point_direction.featrue_point_direction import FeaturePointDirection
+from modules.feature_point_direction.feature_point_direction import FeaturePointDirection
 from modules.feature_point_positions.feature_point_positions import FeaturePointPositions
 from modules.keyframe_pose.keyframe_pose import KeyframePose
 
