@@ -156,7 +156,11 @@ class BriecheeseInterface(FrameStream):
 
         imgpt = tuple(imgpt[0][0].astype(int))
 
+        if min(imgpt) < 0:
+            return view
+
         cv.circle(view, imgpt, 6, (0, 0, 255), -1)
+
         view = self.draw_text(
             view, "id_" + str(feature_point_id), (imgpt[0], imgpt[1] - 10)
         )
