@@ -3,7 +3,6 @@ import MySQLdb
 
 class DBProtocol:
     def __init__(self, table_name, data_format):
-
         self.connection = MySQLdb.connect(
             host="db", port=3306, user="docker", passwd="docker", db="briecheese"
         )

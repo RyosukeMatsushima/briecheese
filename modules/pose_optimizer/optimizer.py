@@ -4,7 +4,6 @@ import cv2 as cv
 
 class Optimizer:
     def __init__(self):
-
         self.feature_points_position = np.array([])
         self.keyframes = []
         self.last_id = 0
@@ -23,7 +22,6 @@ class Optimizer:
         return len(self.keyframes) - 1
 
     def add_feature_point(self, init_position):
-
         if len(self.feature_points_position) != 0:
             self.feature_points_position = np.append(
                 self.feature_points_position, [init_position], axis=0
@@ -37,7 +35,6 @@ class Optimizer:
 
     # TODO: return or callbackoptimize result
     def optimize(self, max_trial, optimize_feature_point=True, callback=None):
-
         is_enough = False
 
         trial = 0
@@ -70,7 +67,6 @@ class Optimizer:
             trial += 1
 
     def calculate(self, keyframe):
-
         keyframe_force = np.zeros(3)
         keyframe_moment = np.identity(3)
         feature_points_force = np.zeros(np.shape(self.feature_points_position))
@@ -82,7 +78,6 @@ class Optimizer:
         )
 
         for feature_point_bundle in keyframe.feature_points_bundle:
-
             feature_point_id = feature_point_bundle[0]
             current_feature_point_position = self.feature_points_position[
                 feature_point_id
@@ -136,7 +131,6 @@ class Keyframe:
         rotation_bundle,
         feature_points_bundle,
     ):
-
         self.position = init_position
         self.rotation = init_rotation
 

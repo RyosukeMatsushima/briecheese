@@ -23,9 +23,7 @@ class OptimizerTest(unittest.TestCase):
         keyframe_position_threshold,
         keyframe_rotation_threshold,
     ):
-
         for i, keyframe in enumerate(optimizer.keyframes):
-
             # check keyframe position error
             evaluate_value = np.linalg.norm(
                 data_manager.cameras_true_position[i] - keyframe.position

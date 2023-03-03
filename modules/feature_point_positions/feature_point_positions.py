@@ -8,7 +8,6 @@ from database.feature_points_position_db import FeaturePointsPositionDB
 
 class FeaturePointPositions:
     def __init__(self):
-
         self.onePiece = OnePiece()
         self.one_piece_length_threshold_to_optimize = 5
 
@@ -18,7 +17,6 @@ class FeaturePointPositions:
     def add_keyframe(
         self, observed_position, observed_roattion, feature_point_directions
     ):
-
         self.onePiece.add_keyframe(
             observed_position, observed_roattion, feature_point_directions
         )
@@ -26,6 +24,7 @@ class FeaturePointPositions:
         if self.onePiece.keyframe_number < self.one_piece_length_threshold_to_optimize:
             return
 
+        print("calculate feature point position")
         feature_point_positions = self.calculate_feature_point_positions(self.onePiece)
 
         db = FeaturePointsPositionDB()
@@ -60,14 +59,13 @@ class FeaturePointPositions:
         feature_point_ids_and_numbers = {}
 
         for feature_point_id in one_piece.feature_point_ids:
-
             # reject feature point observed by only one keyframe.
             if len(one_piece.feature_point_ids[feature_point_id]) < 2:
                 continue
 
             feature_point_number = optimizer.add_feature_point(np.zeros(3))
             feature_point_ids_and_numbers.update(
-                {feature_point_id: feature_point_number}
+                {feature_point_number: feature_point_id}
             )
 
             for direction in one_piece.feature_point_ids[feature_point_id]:
@@ -87,9 +85,10 @@ class FeaturePointPositions:
         optimizer.optimize(2000)
 
         feature_point_positions = {}  # {feature_point_id: position}
-        for feature_point_id in one_piece.feature_point_ids:
-            feature_point_number = feature_point_ids_and_numbers[feature_point_id]
-            position = optimizer.feature_points_position[feature_point_number]
+        for feature_point_number, position in enumerate(
+            optimizer.feature_points_position
+        ):
+            feature_point_id = feature_point_ids_and_numbers[feature_point_number]
             feature_point_positions.update({feature_point_id: position})
 
         return feature_point_positions

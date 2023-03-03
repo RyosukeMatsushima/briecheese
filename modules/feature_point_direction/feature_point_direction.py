@@ -4,7 +4,6 @@ import numpy as np
 
 
 class FeaturePointDirection:
-
     def __init__(self, fx, fy, cx, cy):
         self.fx = fx
         self.fy = fy

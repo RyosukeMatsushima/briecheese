@@ -22,3 +22,7 @@ class FeaturePointsPositionDB(DBProtocol):
         sql = "SELECT * FROM {} WHERE id={}".format(self.table_name, fp_id)
         # TODO: add fetched data size check.
         return super().find(sql)[0]
+
+    def get_all(self):
+        sql = "SELECT * FROM {}".format(self.table_name)
+        return super().find(sql)

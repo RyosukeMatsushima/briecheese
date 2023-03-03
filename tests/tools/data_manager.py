@@ -10,7 +10,6 @@ class DataManager:
     def __init__(
         self, feature_points_position, cameras_position, cameras_rotation, log_file_name
     ):
-
         self.feature_points_true_position = feature_points_position
         self.cameras_true_position = cameras_position
         self.cameras_true_rotation = cameras_rotation
@@ -25,7 +24,6 @@ class DataManager:
         ) = self._setup_logger(log_file_name)
 
     def get_keyframes_bundle(self, noise_scale):
-
         keyframes_bundle = []
 
         for fp, t, R in zip(
