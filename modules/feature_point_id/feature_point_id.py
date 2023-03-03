@@ -4,6 +4,8 @@ from __future__ import print_function
 import numpy as np
 import cv2 as cv
 import json
+
+from modules.feature_point_id.descriptor_with_id import DescriptorWithID
 from database.descriptors_db import DescriptorsDB
 
 
@@ -16,64 +18,81 @@ class FeaturePointId:
         self.matcher = cv.FlannBasedMatcher(flann_params, {})
         self.matcher_wit_latest = None
         self.db = DescriptorsDB()
+        self.descriptorWithID = DescriptorWithID()
+        self.unmatched_descriptors_in_previous_frame = np.array([])
+
         db_descriptors = self.db.get_all()
         descriptors = []
         for db_descriptor in db_descriptors:
             list_db_descriptor = json.loads(db_descriptor[1])
-            descriptors.append(np.uint8(list_db_descriptor))
-        if descriptors:
-            self.matcher.add(np.asarray([descriptors]))
+            feature_point_id = db_descriptor[0]
+            self.descriptorWithID.add_descriptor(list_db_descriptor, feature_point_id)
 
-    def get_with_pixel(self, frame):
+    def get_with_pixel(self, frame, in_create_map):
         keypoints, descriptors = self.detectAndCompute(frame)
-        matches = self.matcher.knnMatch(descriptors, k=2)
+
+        response_with_known_feature_points, unmatched_keypoints, unmatched_descriptors = self.match_with_known_feature_points(keypoints, descriptors)
+
+        response_with_previous_frame = []
+        if in_create_map:
+            response_with_previous_frame = self.match_with_previous_frame(unmatched_keypoints, unmatched_descriptors)
+
+        return response_with_known_feature_points + response_with_previous_frame
+
+    def match_with_known_feature_points(self, keypoints, descriptors):
+        known_descriptors = self.descriptorWithID.get_descriptors()
+
+        if len(known_descriptors) == 0:
+            print("no known descriptors")
+            return [], keypoints, descriptors
+
+        matches = self.matcher.knnMatch(descriptors, known_descriptors, k=2)
         matches = [
             m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.5
         ]
+
         response = []
-        match_keypoints = []
         match_query_indexes = []
 
         for m in matches:
-            feature_point_id_column = self.db.find_by_descriptor(
-                json.dumps(self.matcher.getTrainDescriptors()[0][m.trainIdx].tolist())
-            )
-            response.append([keypoints[m.queryIdx].pt, feature_point_id_column[0]])
-            match_keypoints.append(keypoints[m.queryIdx])
-
+            feature_point_id = self.descriptorWithID.get_id(m.trainIdx)
+            response.append([keypoints[m.queryIdx].pt, feature_point_id])
             match_query_indexes.append(m.queryIdx)
 
-        unregistered_descriptors = np.delete(descriptors, match_query_indexes, 0)
-        descriptors_to_regist = self.update_matcher_with_latest(unregistered_descriptors)
+        unmatched_keypoints = np.delete(keypoints, match_query_indexes, 0)
+        unmatched_descriptors = np.delete(descriptors, match_query_indexes, 0)
+        
+        return response, unmatched_keypoints, unmatched_descriptors
 
-        for descriptor in descriptors_to_regist:
-            feature_point_id_column = self.db.create(descriptor.tolist())
-        if descriptors_to_regist:
-            self.matcher.add(np.asarray([descriptors_to_regist]))
+    def match_with_previous_frame(self, unregistered_keypoints, unregistered_descriptors):
 
-        keypoints, descriptors = self.detectAndCompute(frame)
+        if len(self.unmatched_descriptors_in_previous_frame) == 0:
+            self.unmatched_descriptors_in_previous_frame = unregistered_descriptors
+            return []
+
+        matches = self.matcher.knnMatch(unregistered_descriptors, self.unmatched_descriptors_in_previous_frame, k=2)
+        matches = [
+            m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.5
+        ]
+
+        response = []
+        match_query_indexes = []
+        for m in matches:
+            matched_descriptor = self.unmatched_descriptors_in_previous_frame[m.trainIdx]
+            feature_point_id = self.add_feature_point_to_db(matched_descriptor)
+
+            response.append([unregistered_keypoints[m.queryIdx].pt, feature_point_id])
+            match_query_indexes.append(m.queryIdx)
+
+            self.descriptorWithID.add_descriptor(self.unmatched_descriptors_in_previous_frame[m.trainIdx], feature_point_id)
+
+        self.unmatched_descriptors_in_previous_frame = np.delete(unregistered_descriptors, match_query_indexes, 0)
+
         return response
 
-    def update_matcher_with_latest(self, unregistered_descriptors):
-
-        descriptors_to_regist = []
-
-        if self.matcher_wit_latest:
-            matches = self.matcher_wit_latest.knnMatch(unregistered_descriptors, k=2)
-            matches = [
-                m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.5
-            ]
-
-            for m in matches:
-                descriptors_to_regist.append(self.matcher_wit_latest.getTrainDescriptors()[0][m.trainIdx])
-
-        flann_params = dict(
-            algorithm=6, table_number=6, key_size=12, multi_probe_level=1
-        )
-        self.matcher_wit_latest = cv.FlannBasedMatcher(flann_params, {})
-        self.matcher_wit_latest.add(np.asarray([unregistered_descriptors]))
-
-        return descriptors_to_regist
+    def add_feature_point_to_db(self, descriptor):
+        feature_point_id = self.db.create(descriptor.tolist())[0]
+        return feature_point_id
 
     def detectAndCompute(self, frame):
         keypoints, descriptors = self.detector.detectAndCompute(frame, None)

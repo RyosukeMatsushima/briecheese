@@ -20,7 +20,13 @@ class KeyframePose:
 
         feature_point_position_directions = []
         for direction in feature_point_directions:
-            _, x, y, z = FeaturePointsPositionDB().find(direction[0])
+            try:
+                _, x, y, z = FeaturePointsPositionDB().find(direction[0])
+            except IndexError as err:
+                print("unknown descriptor")
+                print(err)
+                continue
+
             feature_point_number = optimizer.add_feature_point(np.array([x, y, z]))
             feature_point_position_directions.append(
                 [feature_point_number, direction[1]]

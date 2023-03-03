@@ -113,6 +113,12 @@ class BriecheeseInterface(FrameStream):
 
         if self.mode == "get_pose":
             position, rotation = self.get_pose(frame)
+
+            value_view = self.draw_text(value_view, "estimated pose", (10, 75))
+            value_view = self.draw_position_value(value_view, position, (10, 95))
+            value_view = self.draw_rotation_value(
+                value_view, rotation, (10, 115)
+            )
             print("get_pose result position: {} rotation: {}".format(position, rotation))
             # TODO: draw outupt to value_view.
 

@@ -26,6 +26,7 @@ class FeaturePointPositions:
         if self.onePiece.keyframe_number < self.one_piece_length_threshold_to_optimize:
             return
 
+        print("calculate feature point position")
         feature_point_positions = self.calculate_feature_point_positions(self.onePiece)
 
         db = FeaturePointsPositionDB()

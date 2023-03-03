@@ -16,17 +16,17 @@ class Main:
 
     def add_frame(self, frame, observed_position, observed_rotation):
 
-        feature_point_directions = self.get_feature_point_directions(frame)
+        feature_point_directions = self.get_feature_point_directions(frame, True)
         self.featurePointPositions.add_keyframe(observed_position, observed_rotation, feature_point_directions)
 
     def get_pose(self, frame):
 
-        feature_point_directions = self.get_feature_point_directions(frame)
-        position, ratation = self.keyframePose.get_pose(feature_point_directions)
+        feature_point_directions = self.get_feature_point_directions(frame, False)
+        position, rotation = self.keyframePose.get_pose(feature_point_directions)
         return position, rotation
 
-    def get_feature_point_directions(self, frame):
-        feature_point_pixels = self.featurePointId.get_with_pixel(frame)
+    def get_feature_point_directions(self, frame, in_create_map):
+        feature_point_pixels = self.featurePointId.get_with_pixel(frame, in_create_map)
 
         feature_point_directions = []
 
