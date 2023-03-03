@@ -5,7 +5,6 @@ import yaml
 
 class FrameStream:
     def __init__(self):
-
         video_source = None
         with open("setup.yaml") as file:
             setup_params = yaml.safe_load(file)

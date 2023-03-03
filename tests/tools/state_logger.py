@@ -3,7 +3,6 @@ import pandas as pd
 
 class StateLogger:
     def __init__(self, file_name, columns):
-
         self.file_name = file_name
         self.columns = columns
         self.data_stock = []

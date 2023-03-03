@@ -31,11 +31,17 @@ class FeaturePointId:
     def get_with_pixel(self, frame, in_create_map):
         keypoints, descriptors = self.detectAndCompute(frame)
 
-        response_with_known_feature_points, unmatched_keypoints, unmatched_descriptors = self.match_with_known_feature_points(keypoints, descriptors)
+        (
+            response_with_known_feature_points,
+            unmatched_keypoints,
+            unmatched_descriptors,
+        ) = self.match_with_known_feature_points(keypoints, descriptors)
 
         response_with_previous_frame = []
         if in_create_map:
-            response_with_previous_frame = self.match_with_previous_frame(unmatched_keypoints, unmatched_descriptors)
+            response_with_previous_frame = self.match_with_previous_frame(
+                unmatched_keypoints, unmatched_descriptors
+            )
 
         return response_with_known_feature_points + response_with_previous_frame
 
@@ -61,16 +67,19 @@ class FeaturePointId:
 
         unmatched_keypoints = np.delete(keypoints, match_query_indexes, 0)
         unmatched_descriptors = np.delete(descriptors, match_query_indexes, 0)
-        
+
         return response, unmatched_keypoints, unmatched_descriptors
 
-    def match_with_previous_frame(self, unregistered_keypoints, unregistered_descriptors):
-
+    def match_with_previous_frame(
+        self, unregistered_keypoints, unregistered_descriptors
+    ):
         if len(self.unmatched_descriptors_in_previous_frame) == 0:
             self.unmatched_descriptors_in_previous_frame = unregistered_descriptors
             return []
 
-        matches = self.matcher.knnMatch(unregistered_descriptors, self.unmatched_descriptors_in_previous_frame, k=2)
+        matches = self.matcher.knnMatch(
+            unregistered_descriptors, self.unmatched_descriptors_in_previous_frame, k=2
+        )
         matches = [
             m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.5
         ]
@@ -78,15 +87,22 @@ class FeaturePointId:
         response = []
         match_query_indexes = []
         for m in matches:
-            matched_descriptor = self.unmatched_descriptors_in_previous_frame[m.trainIdx]
+            matched_descriptor = self.unmatched_descriptors_in_previous_frame[
+                m.trainIdx
+            ]
             feature_point_id = self.add_feature_point_to_db(matched_descriptor)
 
             response.append([unregistered_keypoints[m.queryIdx].pt, feature_point_id])
             match_query_indexes.append(m.queryIdx)
 
-            self.descriptorWithID.add_descriptor(self.unmatched_descriptors_in_previous_frame[m.trainIdx], feature_point_id)
+            self.descriptorWithID.add_descriptor(
+                self.unmatched_descriptors_in_previous_frame[m.trainIdx],
+                feature_point_id,
+            )
 
-        self.unmatched_descriptors_in_previous_frame = np.delete(unregistered_descriptors, match_query_indexes, 0)
+        self.unmatched_descriptors_in_previous_frame = np.delete(
+            unregistered_descriptors, match_query_indexes, 0
+        )
 
         return response
 

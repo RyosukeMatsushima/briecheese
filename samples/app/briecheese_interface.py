@@ -13,7 +13,6 @@ from database.feature_points_position_db import FeaturePointsPositionDB
 
 class BriecheeseInterface(FrameStream):
     def __init__(self):
-
         super().__init__()
 
         with open("setup.yaml") as file:
@@ -40,7 +39,6 @@ class BriecheeseInterface(FrameStream):
         self.modes = ["create_map", "get_pose"]
 
     def init_briecheese(self, camera_matrix):
-
         fx = camera_matrix[0][0]
         fy = camera_matrix[1][1]
         cx = camera_matrix[0][2]
@@ -67,7 +65,6 @@ class BriecheeseInterface(FrameStream):
             self.feature_point_positions_db.create(i, point[0], point[1], point[2])
 
     def do_next_frame(self):
-
         if self.last_frame.size != 0 and self.pause:
             return self.last_frame
 
@@ -116,10 +113,10 @@ class BriecheeseInterface(FrameStream):
 
             value_view = self.draw_text(value_view, "estimated pose", (10, 75))
             value_view = self.draw_position_value(value_view, position, (10, 95))
-            value_view = self.draw_rotation_value(
-                value_view, rotation, (10, 115)
+            value_view = self.draw_rotation_value(value_view, rotation, (10, 115))
+            print(
+                "get_pose result position: {} rotation: {}".format(position, rotation)
             )
-            print("get_pose result position: {} rotation: {}".format(position, rotation))
             # TODO: draw outupt to value_view.
 
         return self.encode(cv.hconcat([frame_view, value_view]))
@@ -143,7 +140,6 @@ class BriecheeseInterface(FrameStream):
         return frame
 
     def draw_feature_points(self, view, rvec, tvec):
-
         for feature_point_position_data in self.feature_point_positions_db.get_all():
             view = self.draw_point(
                 view,
@@ -174,7 +170,6 @@ class BriecheeseInterface(FrameStream):
         return view
 
     def draw_armarker(self, view, rvec, tvec, corners):
-
         # Draw a square around the markers
         cv.aruco.drawDetectedMarkers(view, corners)
 
@@ -205,7 +200,6 @@ class BriecheeseInterface(FrameStream):
         return self.draw_text(view, text, origin_pixel)
 
     def draw_text(self, view, text, origin_pixel):
-
         cv.putText(
             view,
             text=text,

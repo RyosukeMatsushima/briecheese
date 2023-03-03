@@ -13,7 +13,6 @@ Pose = namedtuple("Pose", "rotMat, position")
 
 class PoseEstimator(ARMarker):
     def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients):
-
         super().__init__(aruco_dict_type, matrix_coefficients, distortion_coefficients)
 
         self.current_frame_pose = None  # in armarker coordinate.
@@ -26,7 +25,6 @@ class PoseEstimator(ARMarker):
         return Pose(rotMat=rot_mat, position=position)
 
     def get_pose(self, frame):
-
         try:
             rvec, tvec, corners = self.detect_marker(frame)
         except ValueError as error:

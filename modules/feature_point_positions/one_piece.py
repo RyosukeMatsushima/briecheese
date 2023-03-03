@@ -7,7 +7,6 @@ ObservedData = namedtuple("ObservedData", "observed_position, observed_rotation"
 
 class OnePiece:
     def __init__(self):
-
         self.feature_point_ids = (
             {}
         )  # { feature_point_id: [ [ keyframe_id, direction ], ... ], ... }
@@ -24,7 +23,6 @@ class OnePiece:
     def add_keyframe(
         self, observed_position, observed_rotation, feature_point_directions
     ):
-
         # check the keyframe is far enough from last keyframe.
         if self.keyframe_number > 0:
             distance = np.linalg.norm(observed_position - self.last_keyframe_position)
@@ -38,7 +36,6 @@ class OnePiece:
         new_feature_point_directions = []
 
         for feature_point_direction in feature_point_directions:
-
             if feature_point_direction[0] in self.feature_point_ids:
                 related_feature_point_directions.append(feature_point_direction)
             else:

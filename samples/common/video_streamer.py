@@ -3,7 +3,6 @@ import cv2 as cv
 
 class VideoStreamer:
     def __init__(self, src):
-
         self.cap = cv.VideoCapture(src)
         self.paused = False
 
@@ -19,7 +18,6 @@ class VideoStreamer:
 
     def run(self):
         while True:
-
             key = cv.waitKey(100)
             self.get_commands(key)
             if self.paused:

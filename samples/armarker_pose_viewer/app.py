@@ -68,7 +68,6 @@ class App(VideoStreamer):
 
 
 if __name__ == "__main__":
-
     ap = argparse.ArgumentParser()
     ap.add_argument("-v", "--Video_src", default=0, help="Video source selection")
     ap.add_argument(
