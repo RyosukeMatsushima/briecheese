@@ -12,7 +12,6 @@ def setup(
     keyframe_bundle_noise_scale,
     log_file_name,
 ):
-
     data_manager = DataManager(
         feature_points_position, cameras_position, cameras_rotation, log_file_name
     )
@@ -33,7 +32,6 @@ def setup(
         optimizer.add_feature_point(point)
 
     for i, bundle in enumerate(keyframes_bundle):
-
         keyframe = Keyframe(
             noised_cameras_position[i],
             noised_cameras_rotation[i],
