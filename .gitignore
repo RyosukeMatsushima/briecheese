@@ -1,2 +1,6 @@
 __pycache__
 tests/tools/log/
+
+modules.egg-info/
+tests/pose_optimizer/log/
+
