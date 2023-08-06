@@ -34,7 +34,7 @@ class Optimizer:
         return current_id
 
     # TODO: return or callbackoptimize result
-    def optimize(self, max_trial, optimize_feature_point=True, callback=None):
+    def optimize(self, max_trial, optimize_feature_point=True, optimize_keyframes=True, callback=None):
         is_enough = False
 
         trial = 0
@@ -43,7 +43,7 @@ class Optimizer:
             feature_points_force = np.zeros(np.shape(self.feature_points_position))
             is_keyframes_enough = True
             for keyframe in self.keyframes:
-                output1, output2 = self.calculate(keyframe)
+                output1, output2 = self.calculate(keyframe, optimize_keyframes)
                 feature_points_force += output1
                 is_keyframes_enough = is_keyframes_enough and output2
 
@@ -63,10 +63,10 @@ class Optimizer:
                 callback(trial, evaluate_value)
 
             if trial >= max_trial:
-                break
+                raise RuntimeError("cannot find fixed position")
             trial += 1
 
-    def calculate(self, keyframe):
+    def calculate(self, keyframe, optimize_keyframes=True):
         keyframe_force = np.zeros(3)
         keyframe_moment = np.identity(3)
         feature_points_force = np.zeros(np.shape(self.feature_points_position))
@@ -112,12 +112,13 @@ class Optimizer:
             )
             keyframe_moment = cv.Rodrigues(-m)[0] @ keyframe_moment
 
-        keyframe.position += keyframe_force
-        keyframe.rotation = keyframe_moment @ keyframe.rotation
+        if optimize_keyframes:
+            keyframe.position += keyframe_force
+            keyframe.rotation = keyframe_moment @ keyframe.rotation
 
         is_keyframe_enough = (
             np.linalg.norm(keyframe_force) < self.keyframe_force_threshold
-            and np.linalg.norm(keyframe_moment) < self.keyframe_moment_threshold
+            and np.linalg.norm(keyframe_moment - np.identity(3)) < self.keyframe_moment_threshold
         )
         return feature_points_force, is_keyframe_enough
 
