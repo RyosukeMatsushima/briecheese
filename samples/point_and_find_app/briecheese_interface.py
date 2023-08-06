@@ -39,7 +39,6 @@ class BriecheeseInterface:
         cy = self.camera_matrix[1][2]
         self.featurePointDirection = FeaturePointDirection(fx, fy, cx, cy)
 
-        self.pointCalculation = PointCalculation()
 
         self.data_for_calculation = {}
         self.current_frame_name = None
@@ -68,6 +67,9 @@ class BriecheeseInterface:
             try:
                 camera_position, camera_rotation_matrix = self.get_camrera_pose_from_maker(frame)
                 self.data_for_calculation.update({img_file_name: FrameInfo(frame, camera_position, camera_rotation_matrix)})
+
+                print("camera_position", camera_position)
+                print("camera_rotation: ", camera_rotation_matrix)
             except RuntimeError as e:
                 print(e)
                 self.current_frame_name = None
@@ -77,22 +79,26 @@ class BriecheeseInterface:
 
     def set_point(self, x, y):
         self.data_for_calculation[self.current_frame_name].point(x, y)
+
+        feature_point_direction = self.featurePointDirection.get(
+                x, y
+            )
         return self.data_for_calculation[self.current_frame_name].get_view_img()
 
     def calculation(self):
 
+        self.pointCalculation = PointCalculation()
+
         for frameInfo in self.data_for_calculation.values():
             if frameInfo.is_empty():
                 continue
-            print(frameInfo.point_x, frameInfo.point_y)
             feature_point_direction = self.featurePointDirection.get(
                 frameInfo.point_x, frameInfo.point_y
             )
 
             self.pointCalculation.set_frame(frameInfo.camera_position, frameInfo.camera_rotation_matrix, np.array(feature_point_direction))
 
-        print("yhaaaaaaaaaaaaaaaaaaaaaa")
-        print(self.pointCalculation.get_position())
+        print("result: ", self.pointCalculation.get_position())
 
     def get_point_position(self):
         return get_position()

@@ -1,4 +1,4 @@
 video_source: '../sample_data/sample.gif'
 camera_matrix: '../sample_data/camera_data/calibration_matrix.npy'
 distortion_coefficients: '../sample_data/camera_data/distortion_coefficients.npy'
-aruco_type: 'DICT_5X5_250'
+aruco_type: 'DICT_4X4_100'

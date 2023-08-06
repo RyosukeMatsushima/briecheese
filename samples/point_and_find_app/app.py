@@ -50,7 +50,6 @@ class App():
 
     def run(self):
         while True:
-            print("start loop")
             current_file_name, current_frame = self.frameHandler.get_current_img()
 
             try:
@@ -69,7 +68,7 @@ class App():
                 self.frameHandler.show_previous()
             if user_input == ord("c"):
                 self.briecheeseInterface.calculation()
-            if user_input == 27:
+            if user_input == ord("q"):
                 break
 
         print('Done')
