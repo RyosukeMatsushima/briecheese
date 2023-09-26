@@ -8,6 +8,7 @@ from modules.feature_point_direction.feature_point_direction import (
 
 from modules.armarker.pose_estimator import PoseEstimator
 from modules.armarker.aruco_dict import aruco_dict
+from modules.tools.coordinate_transformer import CoordinateTransformer
 
 from point_calculation import PointCalculation
 from frame_info import FrameInfo
@@ -15,23 +16,30 @@ from frame_info import FrameInfo
 
 class BriecheeseInterface:
 
-    def __init__(self):
+    def __init__(self, pose_data_source="exif"):
+        self.pose_data_source = pose_data_source
 
         with open("setup.yaml") as file:
             setup_params = yaml.safe_load(file)
             camera_matrix_file = setup_params["camera_matrix"]
             distortion_coefficients_file = setup_params["distortion_coefficients"]
 
-        if aruco_dict().get(setup_params["aruco_type"], None) is None:
-            raise RuntimeError("ArUCo tag type '{args['type']}' is not supported")
-
         self.camera_matrix = np.load(camera_matrix_file)
         self.distortion_coefficients = np.load(distortion_coefficients_file)
-        aruco_type = aruco_dict()[setup_params["aruco_type"]]
 
-        self.arMakerPoseEstimator = PoseEstimator(
-            aruco_type, self.camera_matrix, self.distortion_coefficients
-        )
+        self.current_frame_name = None
+
+        self.coordinateTransformer = None
+        self.arMakerPoseEstimator = None
+
+        if pose_data_source == "marker":
+            if aruco_dict().get(setup_params["aruco_type"], None) is None:
+                raise RuntimeError("ArUCo tag type '{args['type']}' is not supported")
+
+            aruco_type = aruco_dict()[setup_params["aruco_type"]]
+            self.arMakerPoseEstimator = PoseEstimator(
+                aruco_type, self.camera_matrix, self.distortion_coefficients
+            )
 
         fx = self.camera_matrix[0][0]
         fy = self.camera_matrix[1][1]
@@ -39,11 +47,9 @@ class BriecheeseInterface:
         cy = self.camera_matrix[1][2]
         self.featurePointDirection = FeaturePointDirection(fx, fy, cx, cy)
 
-
         self.data_for_calculation = {}
-        self.current_frame_name = None
 
-    def get_camrera_pose_from_maker(self, frame):
+    def get_camrera_pose_from_marker(self, frame):
         p2k = self.arMakerPoseEstimator.get_pose(frame)
 
         is_marker_detected = p2k is not None
@@ -56,7 +62,21 @@ class BriecheeseInterface:
 
         return camera_position, camera_rotation_matrix
 
-    def set_frame(self, img_file_name, frame):
+    def get_camera_pose_from_lat_lon(self, latitude, longitude, altutude):
+        if self.coordinateTransformer is None:
+            self.coordinateTransformer = CoordinateTransformer(
+                latitude, longitude
+            )
+
+        x, y = self.coordinateTransformer.transform_to_x_y(latitude, longitude)
+
+        camera_rotation_matrix = np.array([[ 1., 0., 0.],
+                                           [ 0., -1.,  0.],
+                                           [-0., 0., -1.]])
+
+        return np.array([x, y, altutude]), camera_rotation_matrix
+
+    def set_frame(self, img_file_name, frame, latitude=None, longitude=None, altutude=None):
         last_frame_name = self.current_frame_name
         self.current_frame_name = img_file_name
         if last_frame_name:
@@ -65,7 +85,16 @@ class BriecheeseInterface:
 
         if img_file_name not in self.data_for_calculation:
             try:
-                camera_position, camera_rotation_matrix = self.get_camrera_pose_from_maker(frame)
+                camera_position = None
+                camera_rotation_matrix = None
+
+                if self.pose_data_source == "marker":
+                    camera_position, camera_rotation_matrix = self.get_camrera_pose_from_marker(frame)
+                elif self.pose_data_source == "exif":
+                    camera_position, camera_rotation_matrix = self.get_camera_pose_from_lat_lon(latitude, longitude, altutude)
+                else:
+                    raise RuntimeError("unknown pose data source")
+
                 self.data_for_calculation.update({img_file_name: FrameInfo(frame, camera_position, camera_rotation_matrix)})
 
                 print("camera_position", camera_position)
@@ -86,6 +115,7 @@ class BriecheeseInterface:
         return self.data_for_calculation[self.current_frame_name].get_view_img()
 
     def calculation(self):
+        print("start calculation")
 
         self.pointCalculation = PointCalculation()
 
@@ -98,7 +128,15 @@ class BriecheeseInterface:
 
             self.pointCalculation.set_frame(frameInfo.camera_position, frameInfo.camera_rotation_matrix, np.array(feature_point_direction))
 
-        print("result: ", self.pointCalculation.get_position())
+        point_position = self.pointCalculation.get_position()[0]
+        latitude, longitude = self.coordinateTransformer.transform_to_lat_lon(point_position[0], point_position[1])
+
+        print("")
+        print("result: ", )
+        print("latitude: ", latitude)
+        print("longitude: ", longitude)
+        print("altitude: ", point_position[2])
+        print("")
 
     def get_point_position(self):
         return get_position()
